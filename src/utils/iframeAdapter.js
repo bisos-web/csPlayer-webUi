@@ -102,39 +102,57 @@ function setupMessageListener() {
   messageListenerSetup = true
 
   window.addEventListener('message', (event) => {
-    // Ignore messages that aren't from our orchestration system
-    if (event.data.type !== 'ORCHESTRATION_MESSAGE') {
-      return
-    }
+    // Handle ORCHESTRATION_MESSAGE type (standard format)
+    if (event.data.type === 'ORCHESTRATION_MESSAGE') {
+      const { eventName, data, sender } = event.data
 
-    const { eventName, data, sender } = event.data
+      // Find which service sent this
+      const service = Object.entries(iframeRegistry).find(
+        ([name, iframe]) => iframe.element.contentWindow === event.source
+      )?.[0]
 
-    // Find which service sent this
-    const service = Object.entries(iframeRegistry).find(
-      ([name, iframe]) => iframe.element.contentWindow === event.source
-    )?.[0]
+      if (!service) {
+        console.warn(
+          'IframeAdapter: Received message from unknown iframe:',
+          event.data
+        )
+        return
+      }
 
-    if (!service) {
-      console.warn(
-        'IframeAdapter: Received message from unknown iframe:',
-        event.data
+      // Mark iframe as ready on first message
+      if (!iframeRegistry[service].ready) {
+        iframeRegistry[service].ready = true
+        console.log(`IframeAdapter: Service "${service}" is now ready`)
+        messageBus.publish(ORCHESTRATION_EVENTS.IFRAME_READY, { service })
+      }
+
+      // Publish to message bus so parent can handle it
+      console.log(
+        `IframeAdapter: Received "${eventName}" from ${service}`,
+        data
       )
+      messageBus.publish(eventName, data, service)
       return
     }
 
-    // Mark iframe as ready on first message
-    if (!iframeRegistry[service].ready) {
-      iframeRegistry[service].ready = true
-      console.log(`IframeAdapter: Service "${service}" is now ready`)
-      messageBus.publish(ORCHESTRATION_EVENTS.IFRAME_READY, { service })
+    // Handle direct PostMessage format (for testing)
+    // Expected: { type: 'csPlayer:filterChanged', data: { csxuName: '...' } }
+    //        or { type: 'csPlayer:packageChanged', data: { packageName: '...' } }
+    if (event.data.type === 'csPlayer:filterChanged' || event.data.type === 'csPlayer:packageChanged') {
+      const { type, data } = event.data
+
+      console.log(`IframeAdapter: Received direct message "${type}"`, data)
+
+      // Convert to internal event format
+      if (type === 'csPlayer:filterChanged') {
+        messageBus.publish(ORCHESTRATION_EVENTS.CSPAYER_FILTER_CHANGED, data, 'test-stub')
+      } else if (type === 'csPlayer:packageChanged') {
+        messageBus.publish('CSPAYER_PACKAGE_CHANGED', data, 'test-stub')
+      }
+      return
     }
 
-    // Publish to message bus so parent can handle it
-    console.log(
-      `IframeAdapter: Received "${eventName}" from ${service}`,
-      data
-    )
-    messageBus.publish(eventName, data, service)
+    // Ignore other messages
   })
 }
 

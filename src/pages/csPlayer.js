@@ -7,6 +7,8 @@ import { ORCHESTRATION_EVENTS } from "../utils/orchestrationEvents"
 
 const CsPlayerPage = () => {
   const iframeRef = React.useRef(null)
+  const [selectedCSXU, setSelectedCSXU] = React.useState(null)
+  const [selectedPackage, setSelectedPackage] = React.useState(null)
 
   // Register iframe on mount
   React.useEffect(() => {
@@ -30,16 +32,38 @@ const CsPlayerPage = () => {
         'csPlayer'
       )
 
+      // Subscribe to CSXU filter change event
+      const unsubscribeFilterChanged = messageBus.subscribe(
+        ORCHESTRATION_EVENTS.CSPAYER_FILTER_CHANGED,
+        (data) => {
+          console.log('CSXU selected:', data.csxuName)
+          setSelectedCSXU(data.csxuName)
+        },
+        'csPlayer'
+      )
+
+      // Subscribe to package change event (handle custom event)
+      const unsubscribePackageChanged = messageBus.subscribe(
+        'CSPAYER_PACKAGE_CHANGED',
+        (data) => {
+          console.log('Package selected:', data.packageName)
+          setSelectedPackage(data.packageName)
+        },
+        'csPlayer'
+      )
+
       // Cleanup subscriptions on unmount
       return () => {
         unsubscribeTaskExecuted()
         unsubscribeTaskFailed()
+        unsubscribeFilterChanged()
+        unsubscribePackageChanged()
       }
     }
   }, [])
 
   return (
-    <Layout>
+    <Layout selectedCSXU={selectedCSXU} selectedPackage={selectedPackage}>
       <div className="w-full h-full flex flex-col">
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 bg-white">

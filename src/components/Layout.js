@@ -16,7 +16,9 @@ export default function Layout({
   children, 
   showHeader = true, 
   showSidebar = true, 
-  showFooter = true 
+  showFooter = true,
+  selectedCSXU = null,
+  selectedPackage = null
 }) {
   const location = useLocation()
   const currentPath = normalizePath(location.pathname)
@@ -70,7 +72,7 @@ export default function Layout({
       <div className="flex flex-col min-h-screen max-w-6xl w-full mx-auto bg-white border-l-2 border-r-2 border-t-2 border-blue-900">
         
         {/* Header - Hidden when mobile sidebar is open */}
-        {showHeader && !sidebarOpen && <Header />}
+        {showHeader && !sidebarOpen && <Header selectedCSXU={selectedCSXU} selectedPackage={selectedPackage} />}
 
         {/* Sibling Tabs (shown when no sidebar) */}
         {!showSidebar && <SiblingTabs currentPath={currentPath} />}

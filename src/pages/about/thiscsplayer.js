@@ -40,6 +40,350 @@ export default function ThisCSPlayer() {
               </div>
             </div>
           </section>
+          {/* 3. ESSENTIAL COMPONENTS AND PHASES */}
+          <section className="mb-12">
+            <h2 className="text-3xl font-bold text-black mb-6">
+              Essential Components and Phases
+            </h2>
+
+            <p className="text-black mb-6">
+              As we move towards implementing this, these are the pieces of code that we need to develop. 
+              The description in the document is for you and my benefit. So that you understand what I mean 
+              when I refer to a component. Implementation progresses through three phases of increasing complexity.
+            </p>
+
+            {/* PHASE A */}
+            <div className="mb-12 bg-blue-50 rounded-lg p-6 border-l-4 border-blue-400">
+              <h3 className="text-2xl font-bold text-black mb-4">Phase A: Core Infrastructure (3 Components)</h3>
+              
+              <h4 className="text-lg font-semibold text-black mb-3">Components:</h4>
+              <div className="overflow-x-auto bg-gray-100 rounded-lg p-4 mb-6 border border-gray-300">
+                <table className="w-full border-collapse text-sm text-black">
+                  <thead>
+                    <tr className="bg-gray-300 border border-gray-300">
+                      <th className="border border-gray-300 px-4 py-3 text-left font-bold">Component</th>
+                      <th className="border border-gray-300 px-4 py-3 text-left font-bold">Base (GitHub URL)</th>
+                      <th className="border border-gray-300 px-4 py-3 text-left font-bold">Framework</th>
+                      <th className="border border-gray-300 px-4 py-3 text-left font-bold">Port #</th>
+                      <th className="border border-gray-300 px-4 py-3 text-left font-bold">Role</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border border-gray-300 hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3 font-semibold">webUi-csPlayer</td>
+                      <td className="border border-gray-300 px-4 py-3">github.com/bisos-web/csPlayer-webUi</td>
+                      <td className="border border-gray-300 px-4 py-3">Gatsby</td>
+                      <td className="border border-gray-300 px-4 py-3">8000</td>
+                      <td className="border border-gray-300 px-4 py-3 font-semibold">Orchestrator</td>
+                    </tr>
+
+                    <tr className="border border-gray-300 hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3 font-semibold">cliRun-FrontEnd</td>
+                      <td className="border border-gray-300 px-4 py-3">github.com/cliGui/webCliGui</td>
+                      <td className="border border-gray-300 px-4 py-3">React</td>
+                      <td className="border border-gray-300 px-4 py-3">9002</td>
+                      <td className="border border-gray-300 px-4 py-3">CSXU Interface</td>
+                    </tr>
+
+                    <tr className="border border-gray-300 hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3 font-semibold">cliRun-BackEnd</td>
+                      <td className="border border-gray-300 px-4 py-3">github.com/cliGui/webCliGui/server</td>
+                      <td className="border border-gray-300 px-4 py-3">Django</td>
+                      <td className="border border-gray-300 px-4 py-3">5000</td>
+                      <td className="border border-gray-300 px-4 py-3">CSXU Executor</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <h4 className="text-lg font-semibold text-black mb-3">Communication Paths:</h4>
+              <div className="overflow-x-auto bg-gray-100 rounded-lg p-4 border border-gray-300">
+                <table className="w-full border-collapse text-sm text-black">
+                  <thead>
+                    <tr className="bg-gray-300 border border-gray-300">
+                      <th className="border border-gray-300 px-4 py-3 text-left font-bold">Src</th>
+                      <th className="border border-gray-300 px-4 py-3 text-left font-bold">Dest</th>
+                      <th className="border border-gray-300 px-4 py-3 text-left font-bold">Method</th>
+                      <th className="border border-gray-300 px-4 py-3 text-left font-bold">Terse Comments</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border border-gray-300 hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3">cliRun-FrontEnd (9002)</td>
+                      <td className="border border-gray-300 px-4 py-3">webUi-csPlayer (8000)</td>
+                      <td className="border border-gray-300 px-4 py-3">PostMessage API</td>
+                      <td className="border border-gray-300 px-4 py-3">iframe communication</td>
+                    </tr>
+
+                    <tr className="border border-gray-300 hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3">webUi-csPlayer (8000)</td>
+                      <td className="border border-gray-300 px-4 py-3">cliRun-FrontEnd (9002)</td>
+                      <td className="border border-gray-300 px-4 py-3">PostMessage API</td>
+                      <td className="border border-gray-300 px-4 py-3">iframe communication</td>
+                    </tr>
+
+                    <tr className="border border-gray-300 hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3">cliRun-FrontEnd (9002)</td>
+                      <td className="border border-gray-300 px-4 py-3">cliRun-BackEnd (5000)</td>
+                      <td className="border border-gray-300 px-4 py-3">HTTP REST API</td>
+                      <td className="border border-gray-300 px-4 py-3">webpack devServer proxy</td>
+                    </tr>
+
+                    <tr className="border border-gray-300 hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3">cliRun-BackEnd (5000)</td>
+                      <td className="border border-gray-300 px-4 py-3">cliRun-FrontEnd (9002)</td>
+                      <td className="border border-gray-300 px-4 py-3">HTTP REST API</td>
+                      <td className="border border-gray-300 px-4 py-3">response via REST</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* PHASE B */}
+            <div className="mb-12 bg-green-50 rounded-lg p-6 border-l-4 border-green-400">
+              <h3 className="text-2xl font-bold text-black mb-4">Phase B: Scheduling Integration (4 Components)</h3>
+              <p className="text-black mb-4">Includes Phase A + Airflow for task scheduling and orchestration</p>
+              
+              <h4 className="text-lg font-semibold text-black mb-3">Components:</h4>
+              <div className="overflow-x-auto bg-gray-100 rounded-lg p-4 mb-6 border border-gray-300">
+                <table className="w-full border-collapse text-sm text-black">
+                  <thead>
+                    <tr className="bg-gray-300 border border-gray-300">
+                      <th className="border border-gray-300 px-4 py-3 text-left font-bold">Component</th>
+                      <th className="border border-gray-300 px-4 py-3 text-left font-bold">Base (GitHub URL)</th>
+                      <th className="border border-gray-300 px-4 py-3 text-left font-bold">Framework</th>
+                      <th className="border border-gray-300 px-4 py-3 text-left font-bold">Port #</th>
+                      <th className="border border-gray-300 px-4 py-3 text-left font-bold">Role</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border border-gray-300 hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3 font-semibold">webUi-csPlayer</td>
+                      <td className="border border-gray-300 px-4 py-3">github.com/bisos-web/csPlayer-webUi</td>
+                      <td className="border border-gray-300 px-4 py-3">Gatsby</td>
+                      <td className="border border-gray-300 px-4 py-3">8000</td>
+                      <td className="border border-gray-300 px-4 py-3 font-semibold">Orchestrator</td>
+                    </tr>
+
+                    <tr className="border border-gray-300 hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3 font-semibold">cliRun-FrontEnd</td>
+                      <td className="border border-gray-300 px-4 py-3">github.com/cliGui/webCliGui</td>
+                      <td className="border border-gray-300 px-4 py-3">React</td>
+                      <td className="border border-gray-300 px-4 py-3">9002</td>
+                      <td className="border border-gray-300 px-4 py-3">CSXU Interface</td>
+                    </tr>
+
+                    <tr className="border border-gray-300 hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3 font-semibold">cliRun-BackEnd</td>
+                      <td className="border border-gray-300 px-4 py-3">github.com/cliGui/webCliGui/server</td>
+                      <td className="border border-gray-300 px-4 py-3">Django</td>
+                      <td className="border border-gray-300 px-4 py-3">5000</td>
+                      <td className="border border-gray-300 px-4 py-3">CSXU Executor</td>
+                    </tr>
+
+                    <tr className="border border-gray-300 hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3 font-semibold">AirFlow</td>
+                      <td className="border border-gray-300 px-4 py-3">Apache Airflow</td>
+                      <td className="border border-gray-300 px-4 py-3">Python</td>
+                      <td className="border border-gray-300 px-4 py-3">8080</td>
+                      <td className="border border-gray-300 px-4 py-3">Scheduling</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <h4 className="text-lg font-semibold text-black mb-3">Communication Paths:</h4>
+              <div className="overflow-x-auto bg-gray-100 rounded-lg p-4 border border-gray-300">
+                <table className="w-full border-collapse text-sm text-black">
+                  <thead>
+                    <tr className="bg-gray-300 border border-gray-300">
+                      <th className="border border-gray-300 px-4 py-3 text-left font-bold">Src</th>
+                      <th className="border border-gray-300 px-4 py-3 text-left font-bold">Dest</th>
+                      <th className="border border-gray-300 px-4 py-3 text-left font-bold">Method</th>
+                      <th className="border border-gray-300 px-4 py-3 text-left font-bold">Terse Comments</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border border-gray-300 hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3">cliRun-FrontEnd (9002)</td>
+                      <td className="border border-gray-300 px-4 py-3">webUi-csPlayer (8000)</td>
+                      <td className="border border-gray-300 px-4 py-3">PostMessage API</td>
+                      <td className="border border-gray-300 px-4 py-3">iframe communication</td>
+                    </tr>
+
+                    <tr className="border border-gray-300 hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3">webUi-csPlayer (8000)</td>
+                      <td className="border border-gray-300 px-4 py-3">cliRun-FrontEnd (9002)</td>
+                      <td className="border border-gray-300 px-4 py-3">PostMessage API</td>
+                      <td className="border border-gray-300 px-4 py-3">iframe communication</td>
+                    </tr>
+
+                    <tr className="border border-gray-300 hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3">cliRun-FrontEnd (9002)</td>
+                      <td className="border border-gray-300 px-4 py-3">cliRun-BackEnd (5000)</td>
+                      <td className="border border-gray-300 px-4 py-3">HTTP REST API</td>
+                      <td className="border border-gray-300 px-4 py-3">webpack devServer proxy</td>
+                    </tr>
+
+                    <tr className="border border-gray-300 hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3">cliRun-BackEnd (5000)</td>
+                      <td className="border border-gray-300 px-4 py-3">cliRun-FrontEnd (9002)</td>
+                      <td className="border border-gray-300 px-4 py-3">HTTP REST API</td>
+                      <td className="border border-gray-300 px-4 py-3">response via REST</td>
+                    </tr>
+
+                    <tr className="border border-gray-300 hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3">cliRun-BackEnd (5000)</td>
+                      <td className="border border-gray-300 px-4 py-3">AirFlow (8080)</td>
+                      <td className="border border-gray-300 px-4 py-3">Command Line</td>
+                      <td className="border border-gray-300 px-4 py-3">subprocess execution</td>
+                    </tr>
+
+                    <tr className="border border-gray-300 hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3">AirFlow (8080)</td>
+                      <td className="border border-gray-300 px-4 py-3">cliRun-BackEnd (5000)</td>
+                      <td className="border border-gray-300 px-4 py-3">Return codes/logs</td>
+                      <td className="border border-gray-300 px-4 py-3">execution status</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* PHASE C */}
+            <div className="mb-12 bg-purple-50 rounded-lg p-6 border-l-4 border-purple-400">
+              <h3 className="text-2xl font-bold text-black mb-4">Phase C: Full Observability (5 Components)</h3>
+              <p className="text-black mb-4">Includes Phase B + Grafana for comprehensive monitoring and observability</p>
+              
+              <h4 className="text-lg font-semibold text-black mb-3">Components:</h4>
+              <div className="overflow-x-auto bg-gray-100 rounded-lg p-4 mb-6 border border-gray-300">
+                <table className="w-full border-collapse text-sm text-black">
+                  <thead>
+                    <tr className="bg-gray-300 border border-gray-300">
+                      <th className="border border-gray-300 px-4 py-3 text-left font-bold">Component</th>
+                      <th className="border border-gray-300 px-4 py-3 text-left font-bold">Base (GitHub URL)</th>
+                      <th className="border border-gray-300 px-4 py-3 text-left font-bold">Framework</th>
+                      <th className="border border-gray-300 px-4 py-3 text-left font-bold">Port #</th>
+                      <th className="border border-gray-300 px-4 py-3 text-left font-bold">Role</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border border-gray-300 hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3 font-semibold">webUi-csPlayer</td>
+                      <td className="border border-gray-300 px-4 py-3">github.com/bisos-web/csPlayer-webUi</td>
+                      <td className="border border-gray-300 px-4 py-3">Gatsby</td>
+                      <td className="border border-gray-300 px-4 py-3">8000</td>
+                      <td className="border border-gray-300 px-4 py-3 font-semibold">Orchestrator</td>
+                    </tr>
+
+                    <tr className="border border-gray-300 hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3 font-semibold">cliRun-FrontEnd</td>
+                      <td className="border border-gray-300 px-4 py-3">github.com/cliGui/webCliGui</td>
+                      <td className="border border-gray-300 px-4 py-3">React</td>
+                      <td className="border border-gray-300 px-4 py-3">9002</td>
+                      <td className="border border-gray-300 px-4 py-3">CSXU Interface</td>
+                    </tr>
+
+                    <tr className="border border-gray-300 hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3 font-semibold">cliRun-BackEnd</td>
+                      <td className="border border-gray-300 px-4 py-3">github.com/cliGui/webCliGui/server</td>
+                      <td className="border border-gray-300 px-4 py-3">Django</td>
+                      <td className="border border-gray-300 px-4 py-3">5000</td>
+                      <td className="border border-gray-300 px-4 py-3">CSXU Executor</td>
+                    </tr>
+
+                    <tr className="border border-gray-300 hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3 font-semibold">AirFlow</td>
+                      <td className="border border-gray-300 px-4 py-3">Apache Airflow</td>
+                      <td className="border border-gray-300 px-4 py-3">Python</td>
+                      <td className="border border-gray-300 px-4 py-3">8080</td>
+                      <td className="border border-gray-300 px-4 py-3">Scheduling</td>
+                    </tr>
+
+                    <tr className="border border-gray-300 hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3 font-semibold">Grafana</td>
+                      <td className="border border-gray-300 px-4 py-3">Grafana</td>
+                      <td className="border border-gray-300 px-4 py-3">Go</td>
+                      <td className="border border-gray-300 px-4 py-3">3001</td>
+                      <td className="border border-gray-300 px-4 py-3">Observability</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <h4 className="text-lg font-semibold text-black mb-3">Communication Paths:</h4>
+              <div className="overflow-x-auto bg-gray-100 rounded-lg p-4 border border-gray-300">
+                <table className="w-full border-collapse text-sm text-black">
+                  <thead>
+                    <tr className="bg-gray-300 border border-gray-300">
+                      <th className="border border-gray-300 px-4 py-3 text-left font-bold">Src</th>
+                      <th className="border border-gray-300 px-4 py-3 text-left font-bold">Dest</th>
+                      <th className="border border-gray-300 px-4 py-3 text-left font-bold">Method</th>
+                      <th className="border border-gray-300 px-4 py-3 text-left font-bold">Terse Comments</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr className="border border-gray-300 hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3">cliRun-FrontEnd (9002)</td>
+                      <td className="border border-gray-300 px-4 py-3">webUi-csPlayer (8000)</td>
+                      <td className="border border-gray-300 px-4 py-3">PostMessage API</td>
+                      <td className="border border-gray-300 px-4 py-3">iframe communication</td>
+                    </tr>
+
+                    <tr className="border border-gray-300 hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3">webUi-csPlayer (8000)</td>
+                      <td className="border border-gray-300 px-4 py-3">cliRun-FrontEnd (9002)</td>
+                      <td className="border border-gray-300 px-4 py-3">PostMessage API</td>
+                      <td className="border border-gray-300 px-4 py-3">iframe communication</td>
+                    </tr>
+
+                    <tr className="border border-gray-300 hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3">cliRun-FrontEnd (9002)</td>
+                      <td className="border border-gray-300 px-4 py-3">cliRun-BackEnd (5000)</td>
+                      <td className="border border-gray-300 px-4 py-3">HTTP REST API</td>
+                      <td className="border border-gray-300 px-4 py-3">webpack devServer proxy</td>
+                    </tr>
+
+                    <tr className="border border-gray-300 hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3">cliRun-BackEnd (5000)</td>
+                      <td className="border border-gray-300 px-4 py-3">cliRun-FrontEnd (9002)</td>
+                      <td className="border border-gray-300 px-4 py-3">HTTP REST API</td>
+                      <td className="border border-gray-300 px-4 py-3">response via REST</td>
+                    </tr>
+
+                    <tr className="border border-gray-300 hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3">cliRun-BackEnd (5000)</td>
+                      <td className="border border-gray-300 px-4 py-3">AirFlow (8080)</td>
+                      <td className="border border-gray-300 px-4 py-3">Command Line</td>
+                      <td className="border border-gray-300 px-4 py-3">subprocess execution</td>
+                    </tr>
+
+                    <tr className="border border-gray-300 hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3">AirFlow (8080)</td>
+                      <td className="border border-gray-300 px-4 py-3">cliRun-BackEnd (5000)</td>
+                      <td className="border border-gray-300 px-4 py-3">Return codes/logs</td>
+                      <td className="border border-gray-300 px-4 py-3">execution status</td>
+                    </tr>
+
+                    <tr className="border border-gray-300 hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3">webUi-csPlayer (8000)</td>
+                      <td className="border border-gray-300 px-4 py-3">AirFlow (8080)</td>
+                      <td className="border border-gray-300 px-4 py-3">Navigation links</td>
+                      <td className="border border-gray-300 px-4 py-3">URL with execution context</td>
+                    </tr>
+
+                    <tr className="border border-gray-300 hover:bg-gray-50">
+                      <td className="border border-gray-300 px-4 py-3">webUi-csPlayer (8000)</td>
+                      <td className="border border-gray-300 px-4 py-3">Grafana (3001)</td>
+                      <td className="border border-gray-300 px-4 py-3">Navigation links</td>
+                      <td className="border border-gray-300 px-4 py-3">URL with dashboard context</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
 
           {/* 4. CSPLAYER - THE META-UI */}
           <section className="mb-12">
