@@ -1,0 +1,586 @@
+#+TITLE: BISOS Command Service CLI Web UI - Design Document
+#+AUTHOR: BISOS Development Team
+#+DATE: January 24, 2026
+#+STARTUP: overview
+#+OPTIONS: toc:t H:3
+
+A unified dashboard orchestrating multiple command-line and infrastructure services through an iframe-based architecture. Provides seamless integration between csPlayer (command execution), Airflow (workflow orchestration), and Grafana (metrics visualization) through a centralized Gatsby-based dashboard.
+
+Built with Gatsby 5, React 18, Tailwind CSS 3.4.17, PostMessage API, and a Pub/Sub event system for cross-service communication.
+
+* Table of Contents     :TOC:
+- [[#project-overview][Project Overview]]
+  - [[#vision][Vision]]
+  - [[#architecture-approach][Architecture Approach]]
+  - [[#key-technologies][Key Technologies]]
+- [[#architecture][Architecture]]
+  - [[#system-design][System Design]]
+  - [[#component-services][Component Services]]
+  - [[#communication-model][Communication Model]]
+- [[#orchestration-layer][Orchestration Layer]]
+  - [[#postmessage-api][PostMessage API]]
+  - [[#message-bus][Message Bus]]
+  - [[#iframe-adapter][Iframe Adapter]]
+  - [[#event-system][Event System]]
+- [[#service-integration][Service Integration]]
+  - [[#cspayer-webcliguiintegration][csPlayer (WebCliGui) Integration]]
+  - [[#airflow-integration][Airflow Integration]]
+  - [[#grafana-integration][Grafana Integration]]
+- [[#implementation-status][Implementation Status]]
+  - [[#phase-1-complete][Phase 1: Complete]]
+  - [[#phase-2-pending][Phase 2: Pending]]
+  - [[#phase-3-future][Phase 3: Future]]
+- [[#development-guide][Development Guide]]
+  - [[#project-structure][Project Structure]]
+  - [[#running-the-dashboard][Running the Dashboard]]
+  - [[#debugging][Debugging]]
+- [[#deployment-considerations][Deployment Considerations]]
+  - [[#security][Security]]
+  - [[#scalability][Scalability]]
+- [[#appendix][Appendix]]
+  - [[#file-reference][File Reference]]
+  - [[#event-registry][Event Registry]]
+
+* Project Overview
+:PROPERTIES:
+:CUSTOM_ID: project-overview
+:END:
+
+** Vision
+:PROPERTIES:
+:CUSTOM_ID: vision
+:END:
+
+The BISOS Command Service CLI Web UI is a unified dashboard for managing, monitoring, and orchestrating multiple command-line services and infrastructure tools. It provides a single point of access to:
+
+- *csPlayer (WebCliGui)*: Execute and monitor command-line tasks across servers
+- *Airflow*: Schedule and orchestrate complex workflows
+- *Grafana*: Visualize and monitor system metrics
+
+The vision is to create a cohesive ecosystem where these independent services work together seamlessly through an orchestration layer.
+
+** Architecture Approach
+:PROPERTIES:
+:CUSTOM_ID: architecture-approach
+:END:
+
+Instead of merging multiple frontend projects, we take a *modular iframe orchestration approach*:
+
+1. *Independent Services*: Each service (csPlayer, Airflow, Grafana) remains independent
+   - Maintains its own codebase, dependencies, technology stack
+   - Runs on separate ports (9002, 8080, 3000)
+   - Can be updated/deployed independently
+
+2. *Orchestration Host*: Gatsby-based dashboard (csPlayer-webUi) serves as the orchestrator
+   - Runs on port 8000
+   - Embeds each service in its own iframe
+   - Manages cross-service communication via PostMessage API
+
+3. *Trusted Ecosystem*: All services are internal, under user control
+   - No signature validation needed
+   - Simplified PostMessage security model
+   - Focus on functional communication, not security perimeter
+
+** Key Technologies
+:PROPERTIES:
+:CUSTOM_ID: key-technologies
+:END:
+
+- *Gatsby 5.x*: Static site generator for dashboard
+- *React 18.x*: Component framework
+- *Tailwind CSS 3.4.17*: Utility-first styling
+- *PostMessage API*: Cross-iframe communication
+- *Pub/Sub Pattern*: Message bus for event routing
+- *Node.js 22.21.1*: Runtime environment
+
+* Architecture
+:PROPERTIES:
+:CUSTOM_ID: architecture
+:END:
+
+** System Design
+:PROPERTIES:
+:CUSTOM_ID: system-design
+:END:
+
+#+BEGIN_SRC
+┌──────────────────────────────────────────────────────────────┐
+│                   BISOS Dashboard (Gatsby)                   │
+│                     localhost:8000                           │
+│                                                              │
+│  ┌────────────────────────────────────────────────────────┐ │
+│  │              Orchestration Layer                       │ │
+│  │                                                        │ │
+│  │  ┌──────────────────────────────────────────────────┐ │ │
+│  │  │  Message Bus (messageBus.js)                     │ │ │
+│  │  │  - Central Pub/Sub system                        │ │ │
+│  │  │  - Routes events between services                │ │ │
+│  │  │  - Maintains event history                       │ │ │
+│  │  │  - Exposed via window.__messageBus              │ │ │
+│  │  └──────────────────────────────────────────────────┘ │ │
+│  │           ▲          ▲          ▲                      │ │
+│  │  ┌────────┴──────────┼──────────┴────────────────────┐ │ │
+│  │  │  Iframe Adapter (iframeAdapter.js)               │ │ │
+│  │  │  - PostMessage API handler                       │ │ │
+│  │  │  - Iframe registration & lifecycle               │ │ │
+│  │  │  - Message routing to bus                        │ │ │
+│  │  │  - Exposed via window.__iframeAdapter           │ │ │
+│  │  └────────┬──────────┬──────────┬────────────────────┘ │ │
+│  └───────────┼──────────┼──────────┼────────────────────────┘ │
+│              │          │          │                          │
+└──────────────┼──────────┼──────────┼──────────────────────────┘
+               │          │          │
+        ┌──────▼──┐  ┌──────▼──┐  ┌──▼──────┐
+        │csPlayer │  │ Airflow │  │ Grafana │
+        │ iframe  │  │ iframe  │  │ iframe  │
+        │ :9002   │  │ :8080   │  │ :3000   │
+        └─────────┘  └─────────┘  └─────────┘
+#+END_SRC
+
+** Component Services
+:PROPERTIES:
+:CUSTOM_ID: component-services
+:END:
+
+| Service | Port | Role | Technology |
+|---------+------+------|-------------|
+| csPlayer | 9002 | Command execution & monitoring | React + Django |
+| Airflow | 8080 | Workflow orchestration | Python + Flask |
+| Grafana | 3000 | Metrics & visualization | Go + Node |
+
+** Communication Model
+:PROPERTIES:
+:CUSTOM_ID: communication-model
+:END:
+
+*** Parent → Child (Commands)
+Dashboard sends commands to embedded services:
+
+Parent Action → messageBus.publish() → iframeAdapter → PostMessage → Service iframe
+
+*** Child → Parent (Events)
+Services report events back to dashboard:
+
+Service iframe → window.parent.postMessage() → iframeAdapter → messageBus → Dashboard subscribers
+
+* Orchestration Layer
+:PROPERTIES:
+:CUSTOM_ID: orchestration-layer
+:END:
+
+** PostMessage API
+:PROPERTIES:
+:CUSTOM_ID: postmessage-api
+:END:
+
+Standard browser API for cross-origin, cross-frame communication. Used because:
+
+- Works across iframe boundaries
+- Doesn't require shared origin
+- Native browser support (no dependencies)
+- Trusted ecosystem model (no validation needed)
+
+** Message Bus
+:PROPERTIES:
+:CUSTOM_ID: message-bus
+:END:
+
+*** Location
+=src/utils/messageBus.js= (130 lines)
+
+*** Key Methods
+
+- ~messageBus.subscribe(eventName, callback, service)~
+  - Register listener for an event
+  - Returns unsubscribe function
+
+- ~messageBus.publish(eventName, data, sender)~
+  - Broadcast event to all subscribers
+  - Logs to event history
+
+- ~messageBus.getSubscribers()~
+  - Debug: view all listeners
+
+- ~messageBus.getEventLog()~
+  - Debug: view recent events (last 100)
+
+*** Exposed to Console
+
+- ~window.__messageBus~: Direct message bus access
+- ~window.__messageBusDebug.subscribers()~: View listeners
+- ~window.__messageBusDebug.log()~: View event history
+- ~window.__messageBusDebug.print()~: Pretty-print log
+
+** Iframe Adapter
+:PROPERTIES:
+:CUSTOM_ID: iframe-adapter
+:END:
+
+*** Location
+=src/utils/iframeAdapter.js= (180 lines)
+
+*** Key Functions
+
+- ~registerIframe(serviceName, element)~
+  - Register an iframe with the orchestration system
+  - Starts listening for PostMessage events from that iframe
+
+- ~sendToIframe(serviceName, eventName, data)~
+  - Send message to specific iframe via PostMessage
+
+- ~getIframeStatus()~
+  - Debug: check connection status of all iframes
+
+*** Exposed to Console
+
+- ~window.__iframeAdapter~: Direct adapter access
+- ~window.__iframeAdapter.status()~: Check iframe connections
+- ~window.__iframeAdapter.registry()~: View registered iframes
+- ~window.__iframeAdapter.send(service, event, data)~: Send test messages
+
+** Event System
+:PROPERTIES:
+:CUSTOM_ID: event-system
+:END:
+
+*** Location
+=src/utils/orchestrationEvents.js= (40 lines)
+
+*** Purpose
+Central registry of all events the system supports. Ensures consistency across parent and child implementations.
+
+*** Events by Service
+
+**** csPlayer Events
+
+Parent → csPlayer Commands:
+- ~csPlayer:filterChanged~ - User changed filters
+- ~csPlayer:refreshTasks~ - Refresh task list
+- ~csPlayer:executeCommand~ - Execute command
+
+csPlayer → Parent Events:
+- ~csPlayer:taskExecuted~ - Task completed successfully
+- ~csPlayer:taskFailed~ - Task failed with error
+- ~csPlayer:statusUpdated~ - Status changed (idle → executing)
+
+**** Airflow Events (Ready to Add)
+
+Parent → Airflow Commands:
+- ~airflow:triggerDag~ - Trigger workflow
+- ~airflow:pauseDag~ - Pause workflow
+
+Airflow → Parent Events:
+- ~airflow:dagTriggered~ - Workflow triggered
+- ~airflow:dagStatusChanged~ - Workflow status changed
+
+**** Grafana Events (Ready to Add)
+
+Parent → Grafana Commands:
+- ~grafana:updateDashboard~ - Switch dashboard
+- ~grafana:updateTimeRange~ - Change time range
+
+Grafana → Parent Events:
+- ~grafana:panelDataLoaded~ - Panel data ready
+
+* Service Integration
+:PROPERTIES:
+:CUSTOM_ID: service-integration
+:END:
+
+** csPlayer (WebCliGui) Integration
+:PROPERTIES:
+:CUSTOM_ID: cspayer-webcliguiintegration
+:END:
+
+*** Status: Phase 1 - Parent Ready, Awaiting Child Integration
+
+The parent (Gatsby dashboard) is fully set up to communicate with csPlayer. The csPlayer iframe needs to be integrated.
+
+*** Parent-Side Implementation (Complete ✓)
+
+Location: =src/pages/csPlayer.js=
+
+*** Child-Side Implementation (Template Provided)
+
+Location: =src/templates/csPlayerClient.template.js= (Ready to copy to webCliGui)
+
+Key functions to implement in csPlayer/webCliGui:
+
+- ~initializeOrchestration()~ - Call on app startup
+- ~sendToParent(eventName, data)~ - Send events to parent
+- ~onMessageFromParent(eventName, callback)~ - Listen for commands
+
+*** Integration Checklist
+
+- [ ] Copy =csPlayerClient.template.js= to webCliGui
+- [ ] Import ~initializeOrchestration()~ in main app component
+- [ ] Call ~initializeOrchestration()~ in useEffect on app load
+- [ ] Replace task completion handlers to use ~sendToParent()~
+- [ ] Test: Parent should show ~ready: true~ in ~window.__iframeAdapter.status()~
+
+** Airflow Integration
+:PROPERTIES:
+:CUSTOM_ID: airflow-integration
+:END:
+
+*** Status: Phase 2 - Ready to Begin
+
+The infrastructure supports Airflow integration with identical pattern to csPlayer.
+
+*** Parent-Side (Template Ready)
+
+Similar to csPlayer:
+1. Create or enhance =src/pages/airflow.js=
+2. Register iframe: ~registerIframe('airflow', iframeElement)~
+3. Subscribe to events: ~messageBus.subscribe(ORCHESTRATION_EVENTS.AIRFLOW_*)~
+
+*** Child-Side (Template Reusable)
+
+Airflow will use same pattern as csPlayer:
+1. Copy =csPlayerClient.template.js= pattern to Airflow UI
+2. Call ~initializeOrchestration()~ on startup
+3. Send events when workflows trigger/complete
+
+** Grafana Integration
+:PROPERTIES:
+:CUSTOM_ID: grafana-integration
+:END:
+
+*** Status: Phase 3 - Ready to Plan
+
+Like Airflow, Grafana follows the same integration pattern.
+
+*** Considerations
+
+- Grafana UI is read-heavy (monitoring focus)
+- Communication primarily Parent → Grafana (dashboard switching, time range changes)
+- Events from Grafana less frequent than csPlayer/Airflow
+
+* Implementation Status
+:PROPERTIES:
+:CUSTOM_ID: implementation-status
+:END:
+
+** Phase 1: Complete ✓
+:PROPERTIES:
+:CUSTOM_ID: phase-1-complete
+:END:
+
+*** Infrastructure Built
+
+- [x] Message bus system (~messageBus.js~)
+- [x] Iframe adapter (~iframeAdapter.js~)
+- [x] Event registry (~orchestrationEvents.js~)
+- [x] csPlayer page integrated (~src/pages/csPlayer.js~)
+- [x] Airflow page created (~src/pages/airflow.js~)
+- [x] Grafana page created (~src/pages/grafana.js~)
+- [x] Explore landing page (~src/pages/explore.js~)
+
+*** Documentation Created
+
+- [x] API reference (ORCHESTRATION.md)
+- [x] Setup guide (ORCHESTRATION_SETUP.md)
+- [x] Testing guide (TESTING_GUIDE.md)
+- [x] File manifest (FILE_MANIFEST.md)
+- [x] Design document (README.org)
+
+*** Build Quality
+
+- [x] Zero compilation errors
+- [x] Zero JavaScript errors
+- [x] Gatsby dev server running stable
+
+** Phase 2: Pending
+:PROPERTIES:
+:CUSTOM_ID: phase-2-pending
+:END:
+
+*** csPlayer Integration
+
+- [ ] Integrate csPlayerClient code into webCliGui
+- [ ] Call ~initializeOrchestration()~ on app startup
+- [ ] Update task handlers to send events via ~sendToParent()~
+- [ ] Test full parent-child communication
+
+*** Airflow Integration
+
+- [ ] Create parent-side integration in Airflow page
+- [ ] Develop Airflow iframe client code
+- [ ] Implement workflow trigger communication
+
+** Phase 3: Future
+:PROPERTIES:
+:CUSTOM_ID: phase-3-future
+:END:
+
+*** Grafana Integration
+
+- [ ] Integrate Grafana iframe with orchestration
+- [ ] Implement dashboard/time range synchronization
+
+* Development Guide
+:PROPERTIES:
+:CUSTOM_ID: development-guide
+:END:
+
+** Project Structure
+:PROPERTIES:
+:CUSTOM_ID: project-structure
+:END:
+
+#+BEGIN_SRC
+csPlayer-webUi/
+├── src/
+│   ├── pages/
+│   │   ├── index.js                    # Homepage with service overview
+│   │   ├── csPlayer.js                 # csPlayer iframe page (orchestrated)
+│   │   ├── airflow.js                  # Airflow iframe page (orchestrated)
+│   │   ├── grafana.js                  # Grafana iframe page (orchestrated)
+│   │   ├── explore.js                  # Resource hub page
+│   │   └── explore/
+│   │       ├── help.js
+│   │       ├── search.js
+│   │       ├── accessibility.js
+│   │       └── sitemap.js
+│   ├── components/
+│   │   ├── Header.js                   # App header
+│   │   ├── Footer.js                   # App footer (Libre-Halaal branding)
+│   │   ├── Layout.js                   # Root layout component
+│   │   ├── Sidebar.js                  # Navigation sidebar
+│   │   └── SearchBox.js                # Search component
+│   ├── data/
+│   │   └── menuData.js                 # Sidebar navigation structure
+│   ├── utils/
+│   │   ├── orchestrationEvents.js      # Event registry
+│   │   ├── messageBus.js               # Pub/Sub system
+│   │   └── iframeAdapter.js            # PostMessage bridge
+│   └── templates/
+│       └── csPlayerClient.template.js  # csPlayer integration template
+├── ORCHESTRATION.md                    # API reference
+├── ORCHESTRATION_SETUP.md              # Setup guide
+├── TESTING_GUIDE.md                    # Testing procedures
+├── FILE_MANIFEST.md                    # File breakdown
+└── README.org                          # This design document
+#+END_SRC
+
+** Running the Dashboard
+:PROPERTIES:
+:CUSTOM_ID: running-the-dashboard
+:END:
+
+*** Prerequisites
+
+- Node.js 22.21.1+
+- npm 10.9.4+
+
+*** Start Development Server
+
+#+BEGIN_SRC bash
+cd /bisos/git/auth/bxRepos/bisos-web/csPlayer-webUi
+npm install
+npm run develop
+#+END_SRC
+
+Server starts on ~http://localhost:8000~
+
+*** Build for Production
+
+#+BEGIN_SRC bash
+npm run build
+npm run serve
+#+END_SRC
+
+** Debugging
+:PROPERTIES:
+:CUSTOM_ID: debugging
+:END:
+
+*** Browser Console Commands
+
+All debug tools exposed via ~window~ object:
+
+#+BEGIN_SRC javascript
+// Message Bus debugging
+window.__messageBusDebug.subscribers()  // View all listeners
+window.__messageBusDebug.log()          // View event history
+window.__messageBusDebug.print()        // Pretty-print events
+
+// Iframe Adapter debugging
+window.__iframeAdapter.status()         // Check iframe connections
+window.__iframeAdapter.registry()       // View registered iframes
+window.__iframeAdapter.send(service, event, data)  // Send test message
+#+END_SRC
+
+* Deployment Considerations
+:PROPERTIES:
+:CUSTOM_ID: deployment-considerations
+:END:
+
+** Security
+:PROPERTIES:
+:CUSTOM_ID: security
+:END:
+
+*** Trust Model
+
+This architecture assumes a *trusted internal ecosystem*:
+
+- All services are controlled by the same organization
+- Services are on the same network
+- PostMessage uses =*= origin (intentionally simple for internal use)
+
+*** Security NOT Included (By Design)
+
+- Message signing/validation
+- Message encryption
+- Rate limiting
+
+* Appendix
+:PROPERTIES:
+:CUSTOM_ID: appendix
+:END:
+
+** File Reference
+:PROPERTIES:
+:CUSTOM_ID: file-reference
+:END:
+
+*** Core Orchestration Files
+
+| File | Lines | Purpose | Status |
+|------|-------|---------|--------|
+| =src/utils/orchestrationEvents.js= | 40 | Event registry | ✓ Complete |
+| =src/utils/messageBus.js= | 130 | Pub/Sub system | ✓ Complete |
+| =src/utils/iframeAdapter.js= | 180 | PostMessage bridge | ✓ Complete |
+| =src/templates/csPlayerClient.template.js= | 150 | csPlayer integration template | ✓ Complete |
+
+*** Page Components
+
+| File | Purpose | Status |
+|------|---------|--------|
+| =src/pages/index.js= | Homepage with service overview | ✓ Complete |
+| =src/pages/csPlayer.js= | csPlayer iframe page (orchestrated) | ✓ Complete |
+| =src/pages/airflow.js= | Airflow iframe page (orchestrated) | ✓ Complete |
+| =src/pages/grafana.js= | Grafana iframe page (orchestrated) | ✓ Complete |
+| =src/pages/explore.js= | Resource hub | ✓ Complete |
+
+** Event Registry
+:PROPERTIES:
+:CUSTOM_ID: event-registry
+:END:
+
+*** csPlayer Events
+
+| Event | Direction | Payload | Purpose |
+|-------|-----------|---------|---------|
+| =csPlayer:filterChanged= | Parent → Child | ={environment, server, user}= | User changed filters |
+| =csPlayer:taskExecuted= | Child → Parent | ={taskId, output, duration}= | Task completed |
+| =csPlayer:taskFailed= | Child → Parent | ={taskId, errorMessage}= | Task failed |
+
+---
+
+#+BEGIN_VERSE
+Document Status: LIVING DESIGN DOCUMENT
+Last Updated: January 24, 2026
+Version: 1.0 (Phase 1 Complete)
+#+END_VERSE

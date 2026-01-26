@@ -1,0 +1,81 @@
+// Menu hierarchy structure
+// Can go up to 5 levels deep as requested
+
+export const menuData = [
+  {
+    label: "🏠 Home",
+    path: "/",
+  },
+  {
+    label: "🖥️ csPlayer",
+    path: "/csPlayer",
+  },
+  {
+    label: "📚 csxu Info",
+    path: "/csxuInfo",
+  },
+  {
+    label: "📦 pipx Info",
+    path: "/pipxInfo",
+  },
+  {
+    label: "🐍 Python of CSXU",
+    path: "/csxuPythonSources",
+  },
+  {
+    label: "⚙️ Airflow",
+    path: "/airflow",
+  },
+  {
+    label: "📈 Grafana",
+    path: "/grafana",
+  },
+  {
+    label: "ℹ️ About",
+    path: "/about",
+    children: [
+      {
+        label: "PyCS",
+        path: "/about/pycs",
+      },
+      {
+        label: "CSXU",
+        path: "/about/csxu",
+      },
+      {
+        label: "BISOS-CSXUs",
+        path: "/about/bisos",
+      },
+      {
+        label: "csPlayers",
+        path: "/about/csplayers",
+      },
+      {
+        label: "This csPlayer",
+        path: "/about/thiscsplayer",
+      },
+    ],
+  },
+  {
+    label: "🔍 Explore",
+    path: "/explore",
+    children: [
+      {
+        label: "Help & FAQ",
+        path: "/explore/help",
+      },
+      {
+        label: "Search",
+        path: "/explore/search",
+      },
+      {
+        label: "Accessibility",
+        path: "/explore/accessibility",
+      },
+      {
+        label: "Sitemap",
+        path: "/sitemap",
+      },
+    ],
+  },
+]
