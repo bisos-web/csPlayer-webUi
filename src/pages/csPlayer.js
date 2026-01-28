@@ -4,14 +4,20 @@ import Seo from "../components/seo"
 import { registerIframe } from "../utils/iframeAdapter"
 import { messageBus } from "../utils/messageBus"
 import { ORCHESTRATION_EVENTS } from "../utils/orchestrationEvents"
+import { getOrchestrationState } from "../utils/orchestrationState"
 
 const CsPlayerPage = () => {
   const iframeRef = React.useRef(null)
   const [selectedCSXU, setSelectedCSXU] = React.useState(null)
   const [selectedPackage, setSelectedPackage] = React.useState(null)
 
-  // Register iframe on mount
+  // Initialize state from persistent storage and register iframe
   React.useEffect(() => {
+    // Load persisted state
+    const persistedState = getOrchestrationState()
+    setSelectedCSXU(persistedState.selectedCSXU)
+    setSelectedPackage(persistedState.selectedPackage)
+
     if (iframeRef.current) {
       registerIframe('csPlayer', iframeRef.current)
 

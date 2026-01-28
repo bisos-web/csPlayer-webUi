@@ -10,16 +10,45 @@ export default function MenuItem({ item, level = 0, currentPath, expandedPaths =
   const normalizedCurrentPath = normalizePath(currentPath)
   const normalizedItemPath = normalizePath(item.path)
   
+  // Initialize hook first (before any conditional returns)
+  const [toggledExpanded, setToggledExpanded] = React.useState(false)
+  
+  // Handle divider items (after hooks)
+  if (item.divider) {
+    return (
+      <div style={{ paddingLeft: `${level * 1.5}rem`, margin: '0.5rem 0' }}>
+        <hr style={{ borderTop: '1px solid #e5e7eb', borderBottom: 'none', margin: 0 }} />
+      </div>
+    )
+  }
+  
   const hasChildren = item.children && item.children.length > 0
   const isCurrentPage = normalizedCurrentPath === normalizedItemPath
   const isExpanded = expandedPaths.has(normalizedItemPath)
-  const [toggledExpanded, setToggledExpanded] = React.useState(false)
   
   const displayExpanded = isExpanded || toggledExpanded
   const paddingLeft = `${level * 1.5}rem`
   
+  // Add top border to About item
+  const shouldHaveBorder = item.path === "/about" && level === 0
+  const wrapperStyle = shouldHaveBorder ? {
+    borderTop: '2px solid #d1d5db',
+    paddingTop: '0.75rem',
+    marginTop: '0.75rem',
+  } : {}
+  
+  // Add bottom border to Explore item
+  const shouldHaveBottomBorder = item.path === "/explore" && level === 0
+  const bottomBorderStyle = shouldHaveBottomBorder ? {
+    borderBottom: '2px solid #d1d5db',
+    paddingBottom: '0.75rem',
+    marginBottom: '0.75rem',
+  } : {}
+  
+  const combinedStyle = { ...wrapperStyle, ...bottomBorderStyle }
+  
   return (
-    <div key={item.path}>
+    <div key={item.path} style={combinedStyle}>
       <div style={{ display: 'flex', alignItems: 'center', paddingLeft }}>
         {hasChildren && (
           <button
@@ -45,9 +74,9 @@ export default function MenuItem({ item, level = 0, currentPath, expandedPaths =
       
       {hasChildren && displayExpanded && (
         <div>
-          {item.children.map((child) => (
+          {item.children.map((child, index) => (
             <MenuItem
-              key={child.path}
+              key={child.divider ? `divider-${index}` : child.path}
               item={child}
               level={level + 1}
               currentPath={currentPath}

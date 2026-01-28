@@ -13,6 +13,11 @@ function getExpandedPaths(currentPath, items, expandedPaths = new Set()) {
   const normalizedCurrent = normalizePath(currentPath)
   
   for (let item of items) {
+    // Skip dividers
+    if (item.divider) {
+      continue
+    }
+    
     const normalizedItemPath = normalizePath(item.path)
     
     // If current path matches this item or is in its children, expand it
@@ -32,6 +37,11 @@ function getExpandedPaths(currentPath, items, expandedPaths = new Set()) {
 function isPathInSubtree(path, items) {
   if (!items) return false
   for (let item of items) {
+    // Skip dividers
+    if (item.divider) {
+      continue
+    }
+    
     const normalizedItemPath = normalizePath(item.path)
     if (normalizedItemPath === path) {
       return true
@@ -51,9 +61,9 @@ export default function Sidebar() {
   return (
     <nav style={styles.nav}>
       <div style={styles.menuContainer}>
-        {menuData.map((item) => (
+        {menuData.map((item, index) => (
           <MenuItem
-            key={item.path}
+            key={item.divider ? `divider-${index}` : item.path}
             item={item}
             level={0}
             currentPath={currentPath}

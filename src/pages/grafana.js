@@ -1,12 +1,25 @@
 import * as React from "react"
 import Layout from "../components/Layout"
 import Seo from "../components/seo"
+import { getOrchestrationState } from "../utils/orchestrationState"
 
 const GrafanaPage = () => {
   const iframeRef = React.useRef(null)
+  const [selectedCSXU, setSelectedCSXU] = React.useState(null)
+  const [selectedPackage, setSelectedPackage] = React.useState(null)
+
+  React.useEffect(() => {
+    // Load persisted state on mount
+    const persistedState = getOrchestrationState()
+    setSelectedCSXU(persistedState.selectedCSXU)
+    setSelectedPackage(persistedState.selectedPackage)
+  }, [])
 
   return (
-    <Layout>
+    <Layout 
+      selectedCSXU={selectedCSXU}
+      selectedPackage={selectedPackage}
+    >
       <div className="w-full h-full flex flex-col">
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 bg-white">

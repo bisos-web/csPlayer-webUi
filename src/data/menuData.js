@@ -31,10 +31,6 @@ export const menuData = [
     path: "/grafana",
   },
   {
-    label: "🧪 Test Stubs",
-    path: "/testStubs",
-  },
-  {
     label: "ℹ️ About",
     path: "/about",
     children: [
@@ -81,5 +77,14 @@ export const menuData = [
         path: "/sitemap",
       },
     ],
+    dividerAfter: true,
+  },
+  {
+    label: "🧪 Test Stubs",
+    path: "/testStubs",
+  },
+  {
+    label: "🔧 Facter csApp",
+    path: "/facterCsApp",
   },
 ]

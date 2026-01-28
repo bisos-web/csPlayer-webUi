@@ -1,12 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
+import { getOrchestrationState } from '../utils/orchestrationState';
 import { fetchGithubContent } from '../utils/fetchGithubContent';
 
 export default function CsxuPythonSourcesPage() {
+  const [selectedCSXU, setSelectedCSXU] = useState(null)
+  const [selectedPackage, setSelectedPackage] = useState(null)
   const [content, setContent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    // Load persisted state on mount
+    const persistedState = getOrchestrationState()
+    setSelectedCSXU(persistedState.selectedCSXU)
+    setSelectedPackage(persistedState.selectedPackage)
+  }, []);
 
   useEffect(() => {
     const loadContent = async () => {
@@ -39,7 +49,13 @@ export default function CsxuPythonSourcesPage() {
   };
 
   return (
-    <Layout showHeader={true} showSidebar={true} showFooter={true}>
+    <Layout 
+      showHeader={true} 
+      showSidebar={true} 
+      showFooter={true}
+      selectedCSXU={selectedCSXU}
+      selectedPackage={selectedPackage}
+    >
       <div className="max-w-6xl mx-auto px-4 py-8">
         <div className="mb-8">
           <h1 className="text-5xl font-bold mb-2 text-gray-900">csxu Python Sources</h1>

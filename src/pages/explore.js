@@ -2,9 +2,24 @@ import * as React from "react"
 import { Link } from "gatsby"
 import Layout from "../components/Layout"
 import Seo from "../components/seo"
+import { getOrchestrationState } from "../utils/orchestrationState"
 
-const ExplorePage = () => (
-  <Layout>
+const ExplorePage = () => {
+  const [selectedCSXU, setSelectedCSXU] = React.useState(null)
+  const [selectedPackage, setSelectedPackage] = React.useState(null)
+
+  React.useEffect(() => {
+    // Load persisted state on mount
+    const persistedState = getOrchestrationState()
+    setSelectedCSXU(persistedState.selectedCSXU)
+    setSelectedPackage(persistedState.selectedPackage)
+  }, [])
+
+  return (
+  <Layout 
+    selectedCSXU={selectedCSXU}
+    selectedPackage={selectedPackage}
+  >
     <div className="max-w-4xl mx-auto px-4 py-8">
       <h1 className="text-4xl font-bold text-bystar-navy mb-4">Explore</h1>
       <p className="text-xl text-gray-700 mb-8">
@@ -54,7 +69,8 @@ const ExplorePage = () => (
       </div>
     </div>
   </Layout>
-)
+  )
+}
 
 export const Head = () => <Seo title="Explore" />
 

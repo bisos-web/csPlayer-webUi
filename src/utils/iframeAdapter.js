@@ -13,6 +13,7 @@
 
 import { messageBus } from './messageBus'
 import { ORCHESTRATION_EVENTS, getServiceFromEvent } from './orchestrationEvents'
+import { setSelectedCSXU, setSelectedPackage } from './orchestrationState'
 
 // Registry of all iframes
 const iframeRegistry = {}
@@ -131,6 +132,14 @@ function setupMessageListener() {
         `IframeAdapter: Received "${eventName}" from ${service}`,
         data
       )
+      
+      // Also persist state for navigation persistence
+      if (eventName === ORCHESTRATION_EVENTS.CSPAYER_FILTER_CHANGED && data.csxuName) {
+        setSelectedCSXU(data.csxuName)
+      } else if (eventName === 'CSPAYER_PACKAGE_CHANGED' && data.packageName) {
+        setSelectedPackage(data.packageName)
+      }
+      
       messageBus.publish(eventName, data, service)
       return
     }
@@ -143,10 +152,12 @@ function setupMessageListener() {
 
       console.log(`IframeAdapter: Received direct message "${type}"`, data)
 
-      // Convert to internal event format
+      // Convert to internal event format and persist state
       if (type === 'csPlayer:filterChanged') {
+        setSelectedCSXU(data.csxuName)
         messageBus.publish(ORCHESTRATION_EVENTS.CSPAYER_FILTER_CHANGED, data, 'test-stub')
       } else if (type === 'csPlayer:packageChanged') {
+        setSelectedPackage(data.packageName)
         messageBus.publish('CSPAYER_PACKAGE_CHANGED', data, 'test-stub')
       }
       return

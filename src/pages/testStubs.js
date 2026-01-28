@@ -4,6 +4,7 @@ import Seo from "../components/seo"
 import { registerIframe } from "../utils/iframeAdapter"
 import { messageBus } from "../utils/messageBus"
 import { ORCHESTRATION_EVENTS } from "../utils/orchestrationEvents"
+import { getOrchestrationState } from "../utils/orchestrationState"
 
 const TestStubsPage = () => {
   const iframeRef = React.useRef(null)
@@ -12,6 +13,11 @@ const TestStubsPage = () => {
 
   // Register the test stubs iframe with the adapter and subscribe to events
   React.useEffect(() => {
+    // Load persisted state
+    const persistedState = getOrchestrationState()
+    setSelectedCSXU(persistedState.selectedCSXU)
+    setSelectedPackage(persistedState.selectedPackage)
+
     if (iframeRef.current) {
       registerIframe('testStubs', iframeRef.current)
       console.log('✅ Test Stubs iframe registered')
