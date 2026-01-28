@@ -8,8 +8,11 @@ import { getOrchestrationState } from "../utils/orchestrationState"
 
 const TestStubsPage = () => {
   const iframeRef = React.useRef(null)
+  const pendingMessagesRef = React.useRef([])
+  const [iframeReady, setIframeReady] = React.useState(false)
   const [selectedCSXU, setSelectedCSXU] = React.useState(null)
   const [selectedPackage, setSelectedPackage] = React.useState(null)
+  const [receivedMessages, setReceivedMessages] = React.useState([])
 
   // Register the test stubs iframe with the adapter and subscribe to events
   React.useEffect(() => {
@@ -43,10 +46,44 @@ const TestStubsPage = () => {
       'testStubs'
     )
 
+    // Subscribe to app command events
+    const unsubscribeAppCommand = messageBus.subscribe(
+      ORCHESTRATION_EVENTS.APP_COMMAND_SENT,
+      (data) => {
+        // Forward to iframe if it exists and is loaded
+        if (iframeRef.current && iframeRef.current.contentWindow && iframeReady) {
+          try {
+            const targetOrigin = window.location.origin
+            iframeRef.current.contentWindow.postMessage(
+              {
+                type: 'app:commandReceived',
+                data: {
+                  senderName: data.senderName,
+                  command: data.command,
+                },
+              },
+              targetOrigin
+            )
+          } catch (error) {
+            console.error('❌ Error sending PostMessage to iframe:', error)
+          }
+        } else {
+          // Queue message if iframe not ready yet
+          pendingMessagesRef.current.push(data)
+        }
+        
+        // Also display on parent page
+        const message = `Received From App: [${data.senderName}] ${data.command}`
+        setReceivedMessages((prev) => [...prev, message])
+      },
+      'testStubs'
+    )
+
     // Cleanup subscriptions on unmount
     return () => {
       unsubscribeFilterChanged()
       unsubscribePackageChanged()
+      unsubscribeAppCommand()
     }
   }, [])
 
@@ -76,8 +113,60 @@ const TestStubsPage = () => {
             title="Test Stubs iframe"
             className="w-full border-2 border-gray-200 rounded-lg"
             style={{ height: "600px", minHeight: "600px" }}
-            sandbox="allow-same-origin allow-scripts allow-forms"
+            sandbox="allow-scripts allow-same-origin"
+            onLoad={() => {
+              setIframeReady(true)
+              
+              // Flush any pending messages after a brief delay to ensure iframe listener is attached
+              setTimeout(() => {
+                if (pendingMessagesRef.current.length > 0) {
+                  pendingMessagesRef.current.forEach((data) => {
+                    if (iframeRef.current && iframeRef.current.contentWindow) {
+                      const targetOrigin = window.location.origin
+                      iframeRef.current.contentWindow.postMessage(
+                        {
+                          type: 'app:commandReceived',
+                          data: {
+                            senderName: data.senderName,
+                            command: data.command,
+                          },
+                        },
+                        targetOrigin
+                      )
+                    }
+                  })
+                  pendingMessagesRef.current = []
+                }
+              }, 250)
+            }}
           />
+        </div>
+
+        {/* Received Messages Container */}
+        <div className="bg-green-50 rounded-lg shadow-md border border-green-300 p-6 mb-6">
+          <div className="mb-4">
+            <h2 className="text-xl font-bold text-gray-800 mb-2">📬 Received Messages from Apps (Not in iframe)</h2>
+            <p className="text-sm text-gray-600">
+              Messages sent from other pages appear here in the parent page context:
+            </p>
+          </div>
+
+          {receivedMessages.length === 0 ? (
+            <div className="text-gray-500 italic text-center py-8">
+              No messages received yet. Send one from Facter csApp!
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {receivedMessages.map((msg, idx) => (
+                <div
+                  key={idx}
+                  className="bg-white border border-green-200 rounded-md p-3 font-mono text-sm text-gray-800"
+                >
+                  {msg}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Documentation */}
@@ -145,7 +234,125 @@ const TestStubsPage = () => {
             </div>
 
             <div>
-              <h3 className="font-semibold text-gray-800 mb-2">5️⃣ Message Formats</h3>
+              <h3 className="font-semibold text-gray-800 mb-2">5️⃣ Receiving Messages from Parent</h3>
+              <p className="mb-3">
+                While your iframe sends messages to the parent, the parent application may also send messages back to you.
+                This is useful when the parent needs to command your application to perform actions, display results, or update state.
+              </p>
+              
+              <p className="mb-3 font-semibold text-gray-800">Setting Up a Message Listener:</p>
+              <p className="mb-3">
+                Add a React useEffect hook in your component (or component initialization) to listen for messages from the parent.
+                The parent will use <code className="bg-gray-100 px-2 py-1 rounded text-xs font-mono">window.postMessage()</code> to send messages
+                to your iframe's contentWindow. You need to listen for these messages using the browser's <code className="bg-gray-100 px-2 py-1 rounded text-xs font-mono">message</code> event.
+              </p>
+              
+              <div className="bg-gray-900 text-gray-100 rounded-md p-4 overflow-x-auto font-mono text-xs mb-3">
+                <div>
+                  <span className="text-orange-400">// Add this to your component</span>
+                </div>
+                <div>
+                  <span className="text-blue-400">React</span>.useEffect(() =&gt; {"{"}
+                </div>
+                <div className="ml-4">
+                  <span className="text-orange-400">// Define the message handler function</span>
+                </div>
+                <div className="ml-4">
+                  <span className="text-blue-400">const</span> handleMessage = (event) =&gt; {"{"}
+                </div>
+                <div className="ml-8">
+                  <span className="text-orange-400">// IMPORTANT: Validate the origin for security</span>
+                </div>
+                <div className="ml-8">
+                  <span className="text-blue-400">if</span> (event.origin !== <span className="text-blue-400">window</span>.location.origin) {"{"}
+                </div>
+                <div className="ml-12">
+                  <span className="text-blue-400">return</span> <span className="text-orange-400">// Ignore messages from other origins</span>
+                </div>
+                <div className="ml-8">{"}"}</div>
+                <div className="ml-8"></div>
+                <div className="ml-8">
+                  <span className="text-orange-400">// Check the message type and handle accordingly</span>
+                </div>
+                <div className="ml-8">
+                  <span className="text-blue-400">if</span> (event.data.type === <span className="text-green-400">'app:commandReceived'</span>) {"{"}
+                </div>
+                <div className="ml-12">
+                  <span className="text-orange-400">// Extract data from the message</span>
+                </div>
+                <div className="ml-12">
+                  <span className="text-blue-400">const</span> {"{"}senderName, command{"}"} = event.data.data
+                </div>
+                <div className="ml-12"></div>
+                <div className="ml-12">
+                  <span className="text-orange-400">// Process the command (update state, make API calls, etc.)</span>
+                </div>
+                <div className="ml-12">
+                  console.log(<span className="text-green-400">{"`Received command from ${senderName}: ${command}`"}</span>)
+                </div>
+                <div className="ml-12">
+                  <span className="text-orange-400">// You can now execute the command or update your app state</span>
+                </div>
+                <div className="ml-8">{"}"}</div>
+                <div className="ml-4">{"}"}</div>
+                <div className="ml-4"></div>
+                <div className="ml-4">
+                  <span className="text-orange-400">// Attach the message listener to the window</span>
+                </div>
+                <div className="ml-4">
+                  <span className="text-blue-400">window</span>.addEventListener(<span className="text-green-400">'message'</span>, handleMessage)
+                </div>
+                <div className="ml-4"></div>
+                <div className="ml-4">
+                  <span className="text-orange-400">// Cleanup: Remove the listener when component unmounts</span>
+                </div>
+                <div className="ml-4">
+                  <span className="text-blue-400">return</span> () =&gt; {"{"}
+                </div>
+                <div className="ml-8">
+                  <span className="text-blue-400">window</span>.removeEventListener(<span className="text-green-400">'message'</span>, handleMessage)
+                </div>
+                <div className="ml-4">{"}"}</div>
+                <div>{"}, [])"}</div>
+              </div>
+
+              <p className="mb-3 font-semibold text-gray-800">Message Format from Parent:</p>
+              <p className="mb-3">
+                When the parent sends a message to your iframe, it will use this format:
+              </p>
+              <div className="bg-gray-100 rounded-md p-4 font-mono text-xs space-y-3 mb-3">
+                <div>
+                  <div className="font-semibold text-gray-800 mb-1">App Command Message:</div>
+                  <div className="text-gray-700">
+                    {`{`}
+                    <br/>
+                    <span className="ml-4">type: 'app:commandReceived',</span>
+                    <br/>
+                    <span className="ml-4">data: {`{`}</span>
+                    <br/>
+                    <span className="ml-8">senderName: 'facterCsApp',</span>
+                    <br/>
+                    <span className="ml-8">command: 'facter.cs -i factName networking'</span>
+                    <br/>
+                    <span className="ml-4">{`}`}</span>
+                    <br/>
+                    {`}`}
+                  </div>
+                </div>
+              </div>
+
+              <p className="mb-3 font-semibold text-gray-800">Important Notes:</p>
+              <ul className="list-disc list-inside space-y-2 mb-3">
+                <li><strong>Origin Check:</strong> Always validate <code className="bg-gray-100 px-1 rounded text-xs font-mono">event.origin</code> to ensure messages come from your trusted parent domain.</li>
+                <li><strong>Message Type:</strong> Check the <code className="bg-gray-100 px-1 rounded text-xs font-mono">event.data.type</code> to determine how to handle different message types.</li>
+                <li><strong>Cleanup:</strong> Always remove the event listener when your component unmounts to prevent memory leaks.</li>
+                <li><strong>Async Operations:</strong> You can perform async operations (API calls, state updates) when handling messages.</li>
+                <li><strong>Error Handling:</strong> Add try-catch blocks if you're doing complex operations based on incoming messages.</li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="font-semibold text-gray-800 mb-2">6️⃣ Message Formats</h3>
               <div className="bg-gray-100 rounded-md p-4 font-mono text-xs space-y-3">
                 <div>
                   <div className="font-semibold text-gray-800 mb-1">CSXU Selection:</div>
@@ -175,7 +382,7 @@ const TestStubsPage = () => {
             </div>
 
             <div>
-              <h3 className="font-semibold text-gray-800 mb-2">6️⃣ Browser Console</h3>
+              <h3 className="font-semibold text-gray-800 mb-2">7️⃣ Browser Console</h3>
               <p>
                 Open DevTools (F12) and check the console. You'll see:
               </p>

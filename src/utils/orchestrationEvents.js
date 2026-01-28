@@ -44,6 +44,13 @@ export const ORCHESTRATION_EVENTS = {
   GRAFANA_PANEL_DATA_LOADED: 'grafana:panelDataLoaded',
   
   // ============================================
+  // App Communication Events
+  // ============================================
+  
+  // facterCsApp → testStubs communication
+  APP_COMMAND_SENT: 'app:commandSent',
+  
+  // ============================================
   // System Events
   // ============================================
   

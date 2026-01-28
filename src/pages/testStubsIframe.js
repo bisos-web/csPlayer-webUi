@@ -5,6 +5,29 @@ const TestStubsIframePage = () => {
   const [packageValue, setPackageValue] = React.useState("")
   const [lastSentCSXU, setLastSentCSXU] = React.useState(null)
   const [lastSentPackage, setLastSentPackage] = React.useState(null)
+  const [receivedMessages, setReceivedMessages] = React.useState([])
+
+  // Listen for messages from parent
+  React.useEffect(() => {
+    const handleMessage = (event) => {
+      // Accept messages from same origin
+      if (event.origin !== window.location.origin) {
+        return
+      }
+      
+      if (event.data.type === 'app:commandReceived') {
+        const { senderName, command } = event.data.data
+        const message = `Received From App: [${senderName}] ${command}`
+        setReceivedMessages((prev) => [...prev, message])
+      }
+    }
+
+    window.addEventListener('message', handleMessage)
+    
+    return () => {
+      window.removeEventListener('message', handleMessage)
+    }
+  }, [])
 
   const sendCSXU = () => {
     if (!csxuValue.trim()) {
@@ -153,6 +176,22 @@ const TestStubsIframePage = () => {
             <strong>💡 Tip:</strong> Check browser console (F12) to see PostMessage logs.
             Messages are sent to parent via <code style={styles.code}>window.parent.postMessage()</code>
           </p>
+        </div>
+
+        {/* Received Messages */}
+        <div style={styles.receivedMessagesContainer}>
+          <h3 style={styles.receivedMessagesTitle}>📬 Received Messages from Parent (Received in iframe)</h3>
+          {receivedMessages.length === 0 ? (
+            <div style={styles.noMessages}>Waiting for messages...</div>
+          ) : (
+            <div>
+              {receivedMessages.map((msg, idx) => (
+                <div key={idx} style={styles.messageBox}>
+                  {msg}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Status */}
@@ -334,6 +373,36 @@ const styles = {
     fontFamily: 'monospace',
     margin: '0',
     overflow: 'auto'
+  },
+  receivedMessagesContainer: {
+    background: '#f0fdf4',
+    border: '1px solid #bbf7d0',
+    borderRadius: '6px',
+    padding: '12px',
+    marginBottom: '20px'
+  },
+  receivedMessagesTitle: {
+    fontSize: '13px',
+    fontWeight: '600',
+    color: '#166534',
+    margin: '0 0 8px 0'
+  },
+  noMessages: {
+    fontSize: '13px',
+    color: '#9ca3af',
+    fontStyle: 'italic',
+    padding: '8px',
+    textAlign: 'center'
+  },
+  messageBox: {
+    background: '#ffffff',
+    border: '1px solid #86efac',
+    borderRadius: '4px',
+    padding: '8px',
+    marginBottom: '6px',
+    fontSize: '12px',
+    color: '#1f2937',
+    fontFamily: 'monospace'
   }
 }
 

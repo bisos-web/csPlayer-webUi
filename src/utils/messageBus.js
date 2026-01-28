@@ -16,6 +16,7 @@ class MessageBus {
     this.subscribers = {} // { eventName: [{ callback, service }] }
     this.eventLog = []    // For debugging: log all events
     this.maxLogSize = 100
+    this.messageQueue = {} // { eventName: [messages] } - queue for late subscribers
   }
 
   /**
@@ -40,6 +41,27 @@ class MessageBus {
 
     // Log subscription
     this._log('subscribe', eventName, service)
+
+    // Deliver any queued messages for this event
+    if (this.messageQueue[eventName] && this.messageQueue[eventName].length > 0) {
+      console.log(`📥 Delivering ${this.messageQueue[eventName].length} queued messages for "${eventName}"`)
+      console.log(`📥 Queue contents:`, this.messageQueue[eventName])
+      this.messageQueue[eventName].forEach(({ data, metadata }) => {
+        try {
+          callback(data, metadata)
+        } catch (error) {
+          console.error(
+            `MessageBus: Error in subscriber for "${eventName}":`,
+            error
+          )
+        }
+      })
+      // Clear the queue after delivery
+      this.messageQueue[eventName] = []
+      console.log(`✅ Queue cleared for "${eventName}"`)
+    } else {
+      console.log(`ℹ️ No queued messages for "${eventName}". Queue state:`, this.messageQueue)
+    }
 
     // Return unsubscribe function
     return () => {
@@ -67,8 +89,12 @@ class MessageBus {
       timestamp: Date.now(),
     }
 
+    // Debug: log subscribers count
+    const subscriberCount = this.subscribers[eventName] ? this.subscribers[eventName].length : 0
+    console.log(`📢 MessageBus.publish("${eventName}") - ${subscriberCount} subscribers`)
+
     // Notify subscribers
-    if (this.subscribers[eventName]) {
+    if (this.subscribers[eventName] && this.subscribers[eventName].length > 0) {
       this.subscribers[eventName].forEach(({ callback }) => {
         try {
           callback(data, metadata)
@@ -79,6 +105,16 @@ class MessageBus {
           )
         }
       })
+    } else {
+      // Queue message for late subscribers
+      if (!this.messageQueue[eventName]) {
+        this.messageQueue[eventName] = []
+      }
+      console.log(`📦 No subscribers yet, queueing message for "${eventName}"`)
+      console.log(`📦 Queue before add:`, this.messageQueue[eventName])
+      this.messageQueue[eventName].push({ data, metadata })
+      console.log(`📦 Queue after add:`, this.messageQueue[eventName])
+      console.log(`📦 Full queue state:`, this.messageQueue)
     }
 
     // Log event
