@@ -23,11 +23,11 @@ Built with Gatsby 5, React 18, Tailwind CSS 3.4.17, PostMessage API, and a Pub/S
   - [[#iframe-adapter][Iframe Adapter]]
   - [[#event-system][Event System]]
 - [[#service-integration][Service Integration]]
-  - [[#cspayer-webcliguiintegration][csPlayer (WebCliGui) Integration]]
+  - [[#csplayer-webcligui-integration][csPlayer (WebCliGui) Integration]]
   - [[#airflow-integration][Airflow Integration]]
   - [[#grafana-integration][Grafana Integration]]
 - [[#implementation-status][Implementation Status]]
-  - [[#phase-1-complete][Phase 1: Complete]]
+  - [[#phase-1-complete-][Phase 1: Complete ✓]]
   - [[#phase-2-pending][Phase 2: Pending]]
   - [[#phase-3-future][Phase 3: Future]]
 - [[#development-guide][Development Guide]]
@@ -36,7 +36,6 @@ Built with Gatsby 5, React 18, Tailwind CSS 3.4.17, PostMessage API, and a Pub/S
   - [[#debugging][Debugging]]
 - [[#deployment-considerations][Deployment Considerations]]
   - [[#security][Security]]
-  - [[#scalability][Scalability]]
 - [[#appendix][Appendix]]
   - [[#file-reference][File Reference]]
   - [[#event-registry][Event Registry]]
@@ -142,11 +141,11 @@ Instead of merging multiple frontend projects, we take a *modular iframe orchest
 :CUSTOM_ID: component-services
 :END:
 
-| Service | Port | Role | Technology |
-|---------+------+------|-------------|
+| Service  | Port | Role                           | Technology     |
+|----------+------+--------------------------------+----------------|
 | csPlayer | 9002 | Command execution & monitoring | React + Django |
-| Airflow | 8080 | Workflow orchestration | Python + Flask |
-| Grafana | 3000 | Metrics & visualization | Go + Node |
+| Airflow  | 8080 | Workflow orchestration         | Python + Flask |
+| Grafana  | 3000 | Metrics & visualization        | Go + Node      |
 
 ** Communication Model
 :PROPERTIES:
