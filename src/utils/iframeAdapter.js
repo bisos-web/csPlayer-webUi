@@ -7,7 +7,7 @@
  * - Receives messages from iframes and routes to message bus
  * 
  * Usage:
- *   const iframeElement = document.querySelector('iframe[src*="localhost:9002"]')
+ *   const iframeElement = document.querySelector('iframe[src*="csLineInvoker.here"]')
  *   registerIframe('csPlayer', iframeElement)
  */
 

@@ -11,6 +11,14 @@ export const menuData = [
     path: "/csPlayer",
   },
   {
+    label: "⚙️ Airflow",
+    path: "/airflow",
+  },
+  {
+    label: "📈 Grafana",
+    path: "/grafana",
+  },
+  {
     label: "📚 csxu Info",
     path: "/csxuInfo",
   },
@@ -21,14 +29,6 @@ export const menuData = [
   {
     label: "🐍 Python of CSXU",
     path: "/csxuPythonSources",
-  },
-  {
-    label: "⚙️ Airflow",
-    path: "/airflow",
-  },
-  {
-    label: "📈 Grafana",
-    path: "/grafana",
   },
   {
     label: "ℹ️ About",

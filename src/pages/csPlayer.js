@@ -81,7 +81,7 @@ const CsPlayerPage = () => {
         <div className="flex-1 overflow-hidden">
           <iframe
             ref={iframeRef}
-            src="http://localhost:9002"
+            src="http://csLineInvoker.here"
             title="Web CLI GUI"
             className="w-full h-full border-0"
             style={{ minHeight: "600px" }}
@@ -91,7 +91,7 @@ const CsPlayerPage = () => {
         {/* Loading Message */}
         <div className="hidden" id="loading-message">
           <div className="p-4 bg-blue-50 text-blue-800">
-            Loading Web CLI GUI... Make sure the service is running on http://localhost:9002
+            Loading Web CLI GUI... Make sure the service is running on http://csLineInvoker.here
           </div>
         </div>
       </div>
