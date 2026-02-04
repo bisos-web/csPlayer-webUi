@@ -8,19 +8,26 @@ export default function Header({ selectedCSXU = null, selectedPackage = null }) 
         <div className="flex flex-col gap-4">
           <Link to="/" className="no-underline">
             <h1 className="text-2xl md:text-3xl m-0 font-bold text-white hover:opacity-90 transition-opacity">
-              BISOS PyCS Web UI Player
+              BISOS PyCS Web Command Line Player
             </h1>
           </Link>
           
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 bg-white bg-opacity-10 backdrop-blur-sm rounded-lg px-3 py-2 border border-bystar-light-mint border-opacity-30 w-fit">
-              <span className="text-xs text-bystar-light-mint font-semibold uppercase tracking-wide">CSXU:</span>
-              <span className="text-sm font-mono font-bold text-white">{selectedCSXU || 'none'}</span>
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 bg-white bg-opacity-10 backdrop-blur-sm rounded-lg px-3 py-2 border border-bystar-light-mint border-opacity-30 w-fit">
+                <span className="text-xs text-bystar-light-mint font-semibold uppercase tracking-wide">CSXU:</span>
+                <span className="text-sm font-mono font-bold text-white">{selectedCSXU || 'none'}</span>
+              </div>
+
+              <div className="flex items-center gap-2 bg-white bg-opacity-10 backdrop-blur-sm rounded-lg px-3 py-2 border border-bystar-light-mint border-opacity-30 w-fit">
+                <span className="text-xs text-bystar-light-mint font-semibold uppercase tracking-wide">PKG:</span>
+                <span className="text-sm font-mono font-bold text-white">{selectedPackage || 'none'}</span>
+              </div>
             </div>
 
             <div className="flex items-center gap-2 bg-white bg-opacity-10 backdrop-blur-sm rounded-lg px-3 py-2 border border-bystar-light-mint border-opacity-30 w-fit">
-              <span className="text-xs text-bystar-light-mint font-semibold uppercase tracking-wide">PKG:</span>
-              <span className="text-sm font-mono font-bold text-white">{selectedPackage || 'none'}</span>
+              <span className="text-xs text-bystar-light-mint font-semibold uppercase tracking-wide">User:</span>
+              <span className="text-sm font-mono font-bold text-white">ByStar</span>
             </div>
           </div>
         </div>

@@ -6,7 +6,7 @@ import { messageBus } from "../utils/messageBus"
 import { ORCHESTRATION_EVENTS } from "../utils/orchestrationEvents"
 import { getOrchestrationState } from "../utils/orchestrationState"
 
-const CsPlayerPage = () => {
+const CsPlayerBackEndPage = () => {
   const iframeRef = React.useRef(null)
   const [selectedCSXU, setSelectedCSXU] = React.useState(null)
   const [selectedPackage, setSelectedPackage] = React.useState(null)
@@ -70,38 +70,44 @@ const CsPlayerPage = () => {
 
   return (
     <Layout selectedCSXU={selectedCSXU} selectedPackage={selectedPackage}>
-      <div className="w-full h-full flex flex-col">
+      <div className="w-full flex flex-col" style={{ height: 'calc(100vh - 200px)' }}>
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-200 bg-white flex justify-between items-center">
-          <div>
-            <h1 className="text-3xl font-bold text-blue-900">🖥️ Build and Execute CSXU Command Lines</h1>
-            <p className="text-gray-600 text-sm mt-1">Build, execute and monitor Command Services eXecution Unit command lines across destinations</p>
-          </div>
-          <a 
-            href="http://csLineInvoker.here"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition whitespace-nowrap"
-          >
-            ↗ Open in New Tab
-          </a>
+        <div className="px-6 py-4 border-b border-gray-200 bg-white">
+          <h1 className="text-3xl font-bold text-blue-900">�️ Django Back-End Performer Api Admin</h1>
+          <p className="text-gray-600 text-sm mt-1">Access the Django administration interface</p>
         </div>
 
-        {/* iframe Container */}
-        <div className="flex-1 overflow-hidden">
-          <iframe
-            ref={iframeRef}
-            src="http://csLineInvoker.here"
-            title="Web CLI GUI"
-            className="w-full h-full border-0"
-            style={{ minHeight: "600px" }}
-          />
-        </div>
+        {/* Main Content Area */}
+        <div className="flex-1 overflow-auto flex flex-col items-center justify-center p-8 bg-gray-50">
+          <div className="bg-white rounded-lg shadow-lg p-8 max-w-2xl w-full">
+            <div className="mb-6">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">Django Admin Portal</h2>
+              <p className="text-gray-600 mb-4">
+                The Django admin interface is served at a different domain (csPlayerPerf.here) for security reasons. 
+                Browser restrictions prevent direct embedding, so please use the button below to access it.
+              </p>
+            </div>
 
-        {/* Loading Message */}
-        <div className="hidden" id="loading-message">
-          <div className="p-4 bg-blue-50 text-blue-800">
-            Loading Web CLI GUI... Make sure the service is running on http://csLineInvoker.here
+            <div className="space-y-4">
+              <a 
+                href="http://csPlayerPerf.here/admin/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full px-6 py-3 bg-blue-600 text-white text-center rounded-lg hover:bg-blue-700 transition font-semibold"
+              >
+                ✨ Open Django Admin in New Window
+              </a>
+              
+              <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded">
+                <h3 className="font-semibold text-blue-900 mb-2">How to use:</h3>
+                <ol className="list-decimal list-inside space-y-1 text-sm text-blue-800">
+                  <li>Click the button above to open the admin interface</li>
+                  <li>Log in with your Django admin credentials</li>
+                  <li>Manage models and configure the backend</li>
+                  <li>Your session will persist for subsequent accesses</li>
+                </ol>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -109,6 +115,6 @@ const CsPlayerPage = () => {
   )
 }
 
-export const Head = () => <Seo title="Web CLI GUI" />
+export const Head = () => <Seo title="Django Back-End Performer Api Admin" />
 
-export default CsPlayerPage
+export default CsPlayerBackEndPage

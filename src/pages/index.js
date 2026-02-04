@@ -41,7 +41,7 @@ const IndexPage = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           {/* csPlayer */}
           <div className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border-2 border-blue-300 hover:shadow-lg transition-shadow">
-            <h3 className="text-xl font-bold text-blue-900 mb-2">⌨️ csPlayer</h3>
+            <h3 className="text-xl font-bold text-blue-900 mb-2">🖥️ csPlayer</h3>
             <p className="text-blue-700 mb-4">
               Execute and monitor CSXU command line tasks with audit trailing
             </p>
@@ -50,9 +50,42 @@ const IndexPage = () => {
             </Link>
           </div>
 
+          {/* csPlayer BackEnd */}
+          <div className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border-2 border-purple-300 hover:shadow-lg transition-shadow">
+            <h3 className="text-xl font-bold text-purple-900 mb-2">�️ csPlayer BackEnd</h3>
+            <p className="text-purple-700 mb-4">
+              Access the Django administration interface for backend configuration
+            </p>
+            <Link to="/csPlayerBackEnd" className="inline-block px-4 py-2 bg-purple-600 text-white rounded font-semibold hover:bg-purple-700 no-underline">
+              View Service
+            </Link>
+          </div>
+
+          {/* Airflow */}
+          <div className="p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border-2 border-green-300 hover:shadow-lg transition-shadow">
+            <h3 className="text-xl font-bold text-green-900 mb-2">⚙️ Airflow</h3>
+            <p className="text-green-700 mb-4">
+              Orchestrate and schedule CSXU workflows and data pipelines
+            </p>
+            <Link to="/airflow" className="inline-block px-4 py-2 bg-green-600 text-white rounded font-semibold hover:bg-green-700 no-underline">
+              View Service
+            </Link>
+          </div>
+
+          {/* Grafana */}
+          <div className="p-6 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg border-2 border-orange-300 hover:shadow-lg transition-shadow">
+            <h3 className="text-xl font-bold text-orange-900 mb-2">� Grafana</h3>
+            <p className="text-orange-700 mb-4">
+              Real-time monitoring and visualization of CSXU execution metrics
+            </p>
+            <Link to="/grafana" className="inline-block px-4 py-2 bg-orange-600 text-white rounded font-semibold hover:bg-orange-700 no-underline">
+              View Service
+            </Link>
+          </div>
+
           {/* CSXU Info */}
           <div className="p-6 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-lg border-2 border-indigo-300 hover:shadow-lg transition-shadow">
-            <h3 className="text-xl font-bold text-indigo-900 mb-2">📚 CSXU Info</h3>
+            <h3 className="text-xl font-bold text-indigo-900 mb-2">� CSXU Info</h3>
             <p className="text-indigo-700 mb-4">
               View documentation and metadata for the selected CSXU
             </p>
@@ -74,33 +107,11 @@ const IndexPage = () => {
 
           {/* Python of CSXU */}
           <div className="p-6 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg border-2 border-yellow-300 hover:shadow-lg transition-shadow">
-            <h3 className="text-xl font-bold text-yellow-900 mb-2">🐍 Python of CSXU</h3>
+            <h3 className="text-xl font-bold text-yellow-900 mb-2">� Python of CSXU</h3>
             <p className="text-yellow-700 mb-4">
               View and analyze the Python source code of the selected CSXU
             </p>
             <Link to="/csxuPythonSources" className="inline-block px-4 py-2 bg-yellow-600 text-white rounded font-semibold hover:bg-yellow-700 no-underline">
-              View Service
-            </Link>
-          </div>
-
-          {/* Airflow */}
-          <div className="p-6 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border-2 border-green-300 hover:shadow-lg transition-shadow">
-            <h3 className="text-xl font-bold text-green-900 mb-2">⚙️ Airflow</h3>
-            <p className="text-green-700 mb-4">
-              Orchestrate and schedule CSXU workflows and data pipelines
-            </p>
-            <Link to="/airflow" className="inline-block px-4 py-2 bg-green-600 text-white rounded font-semibold hover:bg-green-700 no-underline">
-              View Service
-            </Link>
-          </div>
-
-          {/* Grafana */}
-          <div className="p-6 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg border-2 border-orange-300 hover:shadow-lg transition-shadow">
-            <h3 className="text-xl font-bold text-orange-900 mb-2">📈 Grafana</h3>
-            <p className="text-orange-700 mb-4">
-              Real-time monitoring and visualization of CSXU execution metrics
-            </p>
-            <Link to="/grafana" className="inline-block px-4 py-2 bg-orange-600 text-white rounded font-semibold hover:bg-orange-700 no-underline">
               View Service
             </Link>
           </div>

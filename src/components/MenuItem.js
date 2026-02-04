@@ -29,26 +29,17 @@ export default function MenuItem({ item, level = 0, currentPath, expandedPaths =
   const displayExpanded = isExpanded || toggledExpanded
   const paddingLeft = `${level * 1.5}rem`
   
-  // Add top border to About item
-  const shouldHaveBorder = item.path === "/about" && level === 0
-  const wrapperStyle = shouldHaveBorder ? {
-    borderTop: '2px solid #d1d5db',
-    paddingTop: '0.75rem',
-    marginTop: '0.75rem',
-  } : {}
-  
-  // Add bottom border to Explore item
-  const shouldHaveBottomBorder = item.path === "/explore" && level === 0
-  const bottomBorderStyle = shouldHaveBottomBorder ? {
-    borderBottom: '2px solid #d1d5db',
+  // Handle divider after this item
+  const hasBottomDivider = item.dividerAfter && level === 0
+  const bottomDividerStyle = hasBottomDivider ? {
     paddingBottom: '0.75rem',
     marginBottom: '0.75rem',
   } : {}
   
-  const combinedStyle = { ...wrapperStyle, ...bottomBorderStyle }
+  const wrapperStyle = bottomDividerStyle
   
   return (
-    <div key={item.path} style={combinedStyle}>
+    <div key={item.path} style={wrapperStyle}>
       <div style={{ display: 'flex', alignItems: 'center', paddingLeft }}>
         {hasChildren && (
           <button
@@ -84,6 +75,10 @@ export default function MenuItem({ item, level = 0, currentPath, expandedPaths =
             />
           ))}
         </div>
+      )}
+
+      {hasBottomDivider && (
+        <hr style={{ borderTop: '2px solid #d1d5db', borderBottom: 'none', margin: '0.5rem 0' }} />
       )}
     </div>
   )

@@ -11,12 +11,17 @@ export const menuData = [
     path: "/csPlayer",
   },
   {
+    label: "�️ csPlayer BackEnd",
+    path: "/csPlayerBackEnd",
+  },
+  {
     label: "⚙️ Airflow",
     path: "/airflow",
   },
   {
     label: "📈 Grafana",
     path: "/grafana",
+    dividerAfter: true,
   },
   {
     label: "📚 csxu Info",
@@ -29,6 +34,7 @@ export const menuData = [
   {
     label: "🐍 Python of CSXU",
     path: "/csxuPythonSources",
+    dividerAfter: true,
   },
   {
     label: "ℹ️ About",
@@ -59,6 +65,7 @@ export const menuData = [
   {
     label: "🔍 Explore",
     path: "/explore",
+    dividerAfter: true,
     children: [
       {
         label: "Help & FAQ",
@@ -77,7 +84,6 @@ export const menuData = [
         path: "/sitemap",
       },
     ],
-    dividerAfter: true,
   },
   {
     label: "🧪 Test Stubs",
