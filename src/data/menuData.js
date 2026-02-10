@@ -1,5 +1,4 @@
 // Menu hierarchy structure
-// Can go up to 5 levels deep as requested
 
 export const menuData = [
   {
@@ -7,8 +6,16 @@ export const menuData = [
     path: "/",
   },
   {
-    label: "🖥️ csPlayer",
+    label: "🖥️ csPlayer CSXU",
     path: "/csPlayer",
+  },
+  {
+      label: "🖥️ ModPlayer facter",
+    path: "/modPlayerFacter",
+  },
+  {
+      label: "🖥️ ModPlayer soncli",
+    path: "/modPlayerSoncli",
   },
   {
     label: "�️ csPlayer BackEnd",
@@ -24,7 +31,11 @@ export const menuData = [
     dividerAfter: true,
   },
   {
-    label: "📚 csxu Info",
+    label: "🌳 CSXU Graphviz",
+    path: "/csxuGraphviz",
+  },
+  {
+    label: "📚 CSXU Info",
     path: "/csxuInfo",
   },
   {

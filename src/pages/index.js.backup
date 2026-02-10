@@ -27,9 +27,9 @@ const IndexPage = () => {
           <p className="text-2xl md:text-3xl font-bold leading-relaxed">
             <span className="text-bystar-navy">Unified Platform To</span>
             <br />
-            <span className="text-blue-700">Specify, Schedule, <span className="underline">Execute</span>, Observe and Monitor</span>
+            <span className="text-blue-700">Specify, Manage, Schedule, Monitor and Observe</span>
             <br />
-            <span className="text-bystar-navy">CSXU Command-Lines and Target-Oriented Modules</span>
+            <span className="text-bystar-navy">CSXU Command Line Executions</span>
           </p>
         </div>
       </section>
@@ -39,9 +39,9 @@ const IndexPage = () => {
         <h2 className="text-3xl font-bold text-bystar-navy mb-6">📊 Services Overview</h2>
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          {/* csPlayer CSXU */}
+          {/* csPlayer */}
           <div className="p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border-2 border-blue-300 hover:shadow-lg transition-shadow">
-            <h3 className="text-xl font-bold text-blue-900 mb-2">🖥️ csPlayer CSXU</h3>
+            <h3 className="text-xl font-bold text-blue-900 mb-2">🖥️ csPlayer</h3>
             <p className="text-blue-700 mb-4">
               Execute and monitor CSXU command line tasks with audit trailing
             </p>
@@ -50,31 +50,9 @@ const IndexPage = () => {
             </Link>
           </div>
 
-          {/* ModPlayer facter */}
-          <div className="p-6 bg-gradient-to-br from-teal-50 to-teal-100 rounded-lg border-2 border-teal-300 hover:shadow-lg transition-shadow">
-            <h3 className="text-xl font-bold text-teal-900 mb-2">🖥️ ModPlayer facter</h3>
-            <p className="text-teal-700 mb-4">
-              Monitor and visualize system facts and properties from facter
-            </p>
-            <Link to="/modPlayerFacter" className="inline-block px-4 py-2 bg-teal-600 text-white rounded font-semibold hover:bg-teal-700 no-underline">
-              View Service
-            </Link>
-          </div>
-
-          {/* ModPlayer soncli */}
-          <div className="p-6 bg-gradient-to-br from-rose-50 to-rose-100 rounded-lg border-2 border-rose-300 hover:shadow-lg transition-shadow">
-            <h3 className="text-xl font-bold text-rose-900 mb-2">🖥️ ModPlayer soncli</h3>
-            <p className="text-rose-700 mb-4">
-              Interact with soncli command line interface and manage configurations
-            </p>
-            <Link to="/modPlayerSoncli" className="inline-block px-4 py-2 bg-rose-600 text-white rounded font-semibold hover:bg-rose-700 no-underline">
-              View Service
-            </Link>
-          </div>
-
           {/* csPlayer BackEnd */}
           <div className="p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border-2 border-purple-300 hover:shadow-lg transition-shadow">
-            <h3 className="text-xl font-bold text-purple-900 mb-2">🔧 csPlayer BackEnd</h3>
+            <h3 className="text-xl font-bold text-purple-900 mb-2">�️ csPlayer BackEnd</h3>
             <p className="text-purple-700 mb-4">
               Access the Django administration interface for backend configuration
             </p>
@@ -96,7 +74,7 @@ const IndexPage = () => {
 
           {/* Grafana */}
           <div className="p-6 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg border-2 border-orange-300 hover:shadow-lg transition-shadow">
-            <h3 className="text-xl font-bold text-orange-900 mb-2">📈 Grafana</h3>
+            <h3 className="text-xl font-bold text-orange-900 mb-2">� Grafana</h3>
             <p className="text-orange-700 mb-4">
               Real-time monitoring and visualization of CSXU execution metrics
             </p>
@@ -105,20 +83,9 @@ const IndexPage = () => {
             </Link>
           </div>
 
-          {/* CSXU Graphviz */}
-          <div className="p-6 bg-gradient-to-br from-lime-50 to-lime-100 rounded-lg border-2 border-lime-300 hover:shadow-lg transition-shadow">
-            <h3 className="text-xl font-bold text-lime-900 mb-2">🌳 CSXU Graphviz</h3>
-            <p className="text-lime-700 mb-4">
-              Visualize CSXU hierarchies and dependencies as interactive graphs
-            </p>
-            <Link to="/csxuGraphviz" className="inline-block px-4 py-2 bg-lime-600 text-white rounded font-semibold hover:bg-lime-700 no-underline">
-              View Service
-            </Link>
-          </div>
-
           {/* CSXU Info */}
           <div className="p-6 bg-gradient-to-br from-indigo-50 to-indigo-100 rounded-lg border-2 border-indigo-300 hover:shadow-lg transition-shadow">
-            <h3 className="text-xl font-bold text-indigo-900 mb-2">📚 CSXU Info</h3>
+            <h3 className="text-xl font-bold text-indigo-900 mb-2">� CSXU Info</h3>
             <p className="text-indigo-700 mb-4">
               View documentation and metadata for the selected CSXU
             </p>
@@ -140,22 +107,11 @@ const IndexPage = () => {
 
           {/* Python of CSXU */}
           <div className="p-6 bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-lg border-2 border-yellow-300 hover:shadow-lg transition-shadow">
-            <h3 className="text-xl font-bold text-yellow-900 mb-2">🐍 Python of CSXU</h3>
+            <h3 className="text-xl font-bold text-yellow-900 mb-2">� Python of CSXU</h3>
             <p className="text-yellow-700 mb-4">
               View and analyze the Python source code of the selected CSXU
             </p>
             <Link to="/csxuPythonSources" className="inline-block px-4 py-2 bg-yellow-600 text-white rounded font-semibold hover:bg-yellow-700 no-underline">
-              View Service
-            </Link>
-          </div>
-
-          {/* Facter csApp */}
-          <div className="p-6 bg-gradient-to-br from-pink-50 to-pink-100 rounded-lg border-2 border-pink-300 hover:shadow-lg transition-shadow">
-            <h3 className="text-xl font-bold text-pink-900 mb-2">🔧 Facter csApp</h3>
-            <p className="text-pink-700 mb-4">
-              Manage and configure Facter integrations and applications
-            </p>
-            <Link to="/facterCsApp" className="inline-block px-4 py-2 bg-pink-600 text-white rounded font-semibold hover:bg-pink-700 no-underline">
               View Service
             </Link>
           </div>

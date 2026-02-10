@@ -8,7 +8,7 @@ export default function Header({ selectedCSXU = null, selectedPackage = null }) 
         <div className="flex flex-col gap-4">
           <Link to="/" className="no-underline">
             <h1 className="text-2xl md:text-3xl m-0 font-bold text-white hover:opacity-90 transition-opacity">
-              BISOS PyCS Web Command Line Player
+              BISOS PyCS Command-Line and Module Player
             </h1>
           </Link>
           

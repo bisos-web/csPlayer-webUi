@@ -24,7 +24,17 @@ const AirflowPage = () => {
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 bg-white">
           <h1 className="text-3xl font-bold text-green-900">⚙️ Airflow</h1>
-          <p className="text-gray-600 text-sm mt-1">Orchestrate and schedule complex workflows and data pipelines</p>
+          <div className="flex items-end justify-between mt-1">
+            <p className="text-gray-600 text-sm">Orchestrate and schedule complex workflows and data pipelines</p>
+            <a
+              href="http://localhost:8080"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition whitespace-nowrap ml-4"
+            >
+              ↗ Open in New Tab
+            </a>
+          </div>
         </div>
 
         {/* iframe Container */}
