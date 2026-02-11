@@ -1,38 +1,82 @@
 /**
- * Orchestration State Manager
+ * Orchestration State Manager (DEPRECATED - kept for backward compatibility)
  * 
- * Maintains persistent state across page navigation.
- * This is a simple in-memory store that survives component unmounting.
+ * This module is now a bridge to the Zustand store in orchestrationStore.js
+ * All state is managed in Zustand, and this just reads from it.
+ * 
+ * This allows old pages to keep working without changes, while new pages use Zustand directly.
  */
 
-let orchestrationState = {
-  selectedCSXU: null,
-  selectedPackage: null,
-};
-
 /**
- * Get current state
+ * Get current state from Zustand store via window object
  */
 export function getOrchestrationState() {
-  return { ...orchestrationState };
+  // On server, return defaults
+  if (typeof window === 'undefined') {
+    return {
+      selectedCSXU: null,
+      selectedPackage: null,
+    };
+  }
+
+  // Get store via the window object (exposed by orchestrationStore)
+  if (window.__getOrchestrationStore) {
+    try {
+      const store = window.__getOrchestrationStore();
+      if (store) {
+        const state = store.getState();
+        return {
+          selectedCSXU: state.selectedCSXU,
+          selectedPackage: state.selectedPackage,
+        };
+      }
+    } catch (error) {
+      console.error('Error getting orchestration state:', error);
+    }
+  }
+
+  // Fallback if store not available yet
+  return {
+    selectedCSXU: null,
+    selectedPackage: null,
+  };
 }
 
 /**
- * Get specific value
+ * Get specific value from store
  */
 export function getStateValue(key) {
-  return orchestrationState[key];
+  const state = getOrchestrationState();
+  return state[key];
 }
 
 /**
- * Update state
+ * Update state in Zustand store
  */
 export function updateOrchestrationState(updates) {
-  orchestrationState = {
-    ...orchestrationState,
-    ...updates,
-  };
-  console.log('OrchestrationState updated:', orchestrationState);
+  if (typeof window === 'undefined') {
+    console.log('orchestrationState: Skipping update on server');
+    return;
+  }
+
+  // Get store via the window object (exposed by orchestrationStore)
+  if (window.__getOrchestrationStore) {
+    try {
+      const store = window.__getOrchestrationStore();
+      if (store) {
+        const state = store.getState();
+        if (updates.selectedCSXU !== undefined) {
+          state.setSelectedCSXU(updates.selectedCSXU);
+        }
+        if (updates.selectedPackage !== undefined) {
+          state.setSelectedPackage(updates.selectedPackage);
+        }
+        console.log('orchestrationState: Updated via Zustand:', updates);
+      }
+    } catch (error) {
+      console.error('Error updating orchestration state:', error);
+    }
+  }
 }
 
 /**
@@ -48,6 +92,7 @@ export function setSelectedCSXU(csxuName) {
 export function setSelectedPackage(packageName) {
   updateOrchestrationState({ selectedPackage: packageName });
 }
+
 
 /**
  * Clear state (for testing)

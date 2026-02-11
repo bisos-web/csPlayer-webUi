@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import Layout from '../components/Layout';
 import { messageBus } from '../utils/messageBus';
 import { ORCHESTRATION_EVENTS } from '../utils/orchestrationEvents';
-import { getOrchestrationState } from '../utils/orchestrationState';
+import { useOrchestration, useOrchestrationPersistence } from '../stores/orchestrationStore';
 import { fetchGithubContent, parseOrgContent, formatOrgContent } from '../utils/fetchGithubContent';
 
 export default function CsxuInfoPage() {
-  const [selectedPackage, setSelectedPackage] = useState(null);
-  const [selectedCSXU, setSelectedCSXU] = useState(null);
+  // Use Zustand store for orchestration state
+  useOrchestrationPersistence()
+  const { selectedPackage, selectedCSXU } = useOrchestration()
+
   const [githubUrl, setGithubUrl] = useState(null);
   const [content, setContent] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -25,54 +27,19 @@ export default function CsxuInfoPage() {
 
   /**
    * Construct GitHub URL from package name
-   * e.g., "bisos.facter" -> "/bisos/var/csxu/selectedCSXU/derived/graphviz.pdf
+   * e.g., "bisos.facter" -> "/bisos/var/csxu/facter.cs/derived/graphviz.pdf
    */
   const constructGithubUrl = (packageName) => {
     const repoName = getRepoNameFromPackage(packageName);
     if (!repoName) return null;
-    return `file:///bisos/var/csxu/${selectedCSXU}.cs/derived/graphviz.pdf`;
+    // Ensure we don't double-append .cs if it's already there
+    const csxuPath = selectedCSXU.endsWith('.cs') ? selectedCSXU : `${selectedCSXU}.cs`;
+    return `file:///bisos/var/csxu/${csxuPath}/derived/graphviz.pdf`;
   };
 
-  // Subscribe to package change event
-  useEffect(() => {
-    // Load persisted state on mount
-    const persistedState = getOrchestrationState()
-    if (persistedState.selectedPackage) {
-      setSelectedPackage(persistedState.selectedPackage)
-    }
-    if (persistedState.selectedCSXU) {
-      setSelectedCSXU(persistedState.selectedCSXU)
-    }
-
-    const unsubscribePackage = messageBus.subscribe(
-      'CSPAYER_PACKAGE_CHANGED',
-      (data) => {
-        console.log('csxuInfo received package:', data.packageName);
-        setSelectedPackage(data.packageName);
-      },
-      'csxuInfo'
-    );
-
-    return () => {
-      unsubscribePackage();
-    };
-  }, []);
-
-  // Subscribe to CSXU change event (for future flexibility)
-  useEffect(() => {
-    const unsubscribeCSXU = messageBus.subscribe(
-      ORCHESTRATION_EVENTS.CSPAYER_FILTER_CHANGED,
-      (data) => {
-        console.log('csxuInfo received CSXU:', data.csxuName);
-        setSelectedCSXU(data.csxuName);
-      },
-      'csxuInfo'
-    );
-
-    return () => {
-      unsubscribeCSXU();
-    };
-  }, []);
+  // No need for effects to load state or subscribe to messageBus
+  // The useOrchestration hook automatically provides current store values
+  // and updates whenever the store changes
 
   // When package changes, construct URL and fetch content
   useEffect(() => {
@@ -84,38 +51,27 @@ export default function CsxuInfoPage() {
           setError(null);
           setContent(null);
           setGithubUrl(null);
-          console.log('csxuInfo: No package selected, waiting for selection');
+          console.log('csxuGraphviz: No package selected, waiting for selection');
           return;
         }
 
-        // Construct the dynamic GitHub URL
+        // Construct the graphviz PDF URL
         const url = constructGithubUrl(selectedPackage);
-        console.log('csxuInfo: Constructed GitHub URL:', url);
+        console.log('csxuGraphviz: Constructed PDF URL:', url);
 
         if (!url) {
-          setError('Could not construct GitHub URL from package name');
+          setError('Could not construct PDF URL from package name');
           setLoading(false);
           return;
         }
 
         setGithubUrl(url);
-        setLoading(true);
+        setLoading(false);  // For PDF in iframe, we don't need loading state
         setError(null);
-
-        // Fetch the README.org from GitHub
-        const rawContent = await fetchGithubContent(url);
-
-        // Parse the org-mode content
-        const parsed = parseOrgContent(rawContent);
-        const formatted = formatOrgContent(parsed);
-
-        setContent(formatted);
-        console.log('csxuInfo: Content loaded successfully for package:', selectedPackage);
+        setContent(null);  // Not fetching content anymore, just embedding iframe
       } catch (err) {
         setError(err.message);
-        console.error('csxuInfo: Failed to load content:', err);
-      } finally {
-        setLoading(false);
+        console.error('csxuGraphviz: Failed to construct URL:', err);
       }
     };
 
@@ -179,39 +135,65 @@ export default function CsxuInfoPage() {
 
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-            <h2 className="text-lg font-bold text-red-800 mb-2">Error Loading Content</h2>
+            <h2 className="text-lg font-bold text-red-800 mb-2">Error Loading PDF</h2>
             <p className="text-red-700">{error}</p>
             {githubUrl && (
               <p className="text-sm text-red-600 mt-4">
-                Source: <a href={githubUrl}
-                           className="underline hover:no-underline"
-                           target="_blank"
-                           rel="noopener noreferrer">
-                  {githubUrl}
-                </a>
+                Attempted path: <code className="bg-red-100 px-2 py-1 rounded">{githubUrl}</code>
               </p>
             )}
           </div>
         )}
 
-        {content && (
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
-            {content.map((section, index) => renderSection(section, index))}
-
-            <div className="mt-8 pt-8 border-t border-gray-200">
-              {githubUrl && (
-                <p className="text-sm text-gray-600">
-                  Source: <a href={githubUrl}
-                             className="text-blue-600 hover:underline"
-                             target="_blank"
-                             rel="noopener noreferrer">
-                    {githubUrl}
-                  </a>
-                </p>
-              )}
-              <p className="text-xs text-gray-500 mt-2">
-                Package: <strong>{selectedPackage}</strong> | Content fetched at runtime from GitHub
-              </p>
+        {githubUrl && !error && (
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div className="bg-gray-100 px-6 py-4 border-b border-gray-200">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-gray-800">
+                    CSXU Graphviz: <span className="font-mono text-blue-600">{selectedCSXU}</span>
+                  </p>
+                  <p className="text-xs text-gray-600 mt-1">
+                    File: <span className="font-mono">{githubUrl}</span>
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    // Use fetch + blob approach to work around browser file:// security restrictions
+                    fetch(githubUrl)
+                      .then(response => response.blob())
+                      .then(blob => {
+                        const blobUrl = window.URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = blobUrl;
+                        a.download = `${selectedCSXU}-graphviz.pdf`;
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(blobUrl);
+                        document.body.removeChild(a);
+                      })
+                      .catch(err => console.error('Error downloading PDF:', err))
+                  }}
+                  className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition whitespace-nowrap text-sm font-medium cursor-pointer"
+                >
+                  ⬇ Download PDF
+                </button>
+              </div>
+            </div>
+            
+            <iframe
+              src={githubUrl}
+              style={{
+                width: '100%',
+                height: '800px',
+                border: 'none',
+                display: 'block'
+              }}
+              title={`Graphviz for ${selectedCSXU}`}
+            />
+            
+            <div className="bg-gray-50 px-6 py-3 border-t border-gray-200 text-xs text-gray-600">
+              Package: <strong>{selectedPackage}</strong>
             </div>
           </div>
         )}

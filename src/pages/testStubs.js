@@ -1,95 +1,123 @@
 import * as React from "react"
 import Layout from "../components/Layout"
 import Seo from "../components/seo"
+import { ErrorBoundary } from "../components/ErrorBoundary"
 import { registerIframe } from "../utils/iframeAdapter"
 import { messageBus } from "../utils/messageBus"
 import { ORCHESTRATION_EVENTS } from "../utils/orchestrationEvents"
-import { getOrchestrationState } from "../utils/orchestrationState"
+import { useOrchestration, useOrchestrationPersistence } from "../stores/orchestrationStore"
 
 const TestStubsPage = () => {
+  console.log('🧪 testStubs.js: Component rendering...')
   const iframeRef = React.useRef(null)
   const pendingMessagesRef = React.useRef([])
   const [iframeReady, setIframeReady] = React.useState(false)
-  const [selectedCSXU, setSelectedCSXU] = React.useState(null)
-  const [selectedPackage, setSelectedPackage] = React.useState(null)
   const [receivedMessages, setReceivedMessages] = React.useState([])
+  const [error, setError] = React.useState(null)
+  
+  // Enable localStorage persistence for the orchestration store
+  console.log('🧪 testStubs.js: Calling useOrchestrationPersistence')
+  useOrchestrationPersistence()
+  
+  // Use Zustand store for orchestration state
+  console.log('🧪 testStubs.js: Calling useOrchestration')
+  const { selectedCSXU, selectedPackage, setSelectedCSXU, setSelectedPackage } = useOrchestration()
+  console.log('🧪 testStubs.js: Got store state', { selectedCSXU, selectedPackage })
 
   // Register the test stubs iframe with the adapter and subscribe to events
   React.useEffect(() => {
-    // Load persisted state
-    const persistedState = getOrchestrationState()
-    setSelectedCSXU(persistedState.selectedCSXU)
-    setSelectedPackage(persistedState.selectedPackage)
-
-    if (iframeRef.current) {
-      registerIframe('testStubs', iframeRef.current)
-      console.log('✅ Test Stubs iframe registered')
+    console.log('🧪 testStubs.js: Effect running...')
+    // CRITICAL: Only run on client, not during SSR
+    if (typeof window === 'undefined') {
+      console.log('🧪 testStubs.js: Skipping effect on server')
+      return
     }
 
-    // Subscribe to CSXU filter change event
-    const unsubscribeFilterChanged = messageBus.subscribe(
-      ORCHESTRATION_EVENTS.CSPAYER_FILTER_CHANGED,
-      (data) => {
-        console.log('testStubs received CSXU:', data.csxuName)
-        setSelectedCSXU(data.csxuName)
-      },
-      'testStubs'
-    )
+    console.log('🧪 testStubs.js: Running on client...')
 
-    // Subscribe to package change event
-    const unsubscribePackageChanged = messageBus.subscribe(
-      'CSPAYER_PACKAGE_CHANGED',
-      (data) => {
-        console.log('testStubs received Package:', data.packageName)
-        setSelectedPackage(data.packageName)
-      },
-      'testStubs'
-    )
+    try {
+      if (iframeRef.current) {
+        console.log('🧪 testStubs.js: iframe ref exists, registering...')
+        registerIframe('testStubs', iframeRef.current)
+        console.log('✅ testStubs.js: iframe registered')
+      }
 
-    // Subscribe to app command events
-    const unsubscribeAppCommand = messageBus.subscribe(
-      ORCHESTRATION_EVENTS.APP_COMMAND_SENT,
-      (data) => {
-        // Forward to iframe if it exists and is loaded
-        if (iframeRef.current && iframeRef.current.contentWindow && iframeReady) {
-          try {
-            const targetOrigin = window.location.origin
-            iframeRef.current.contentWindow.postMessage(
-              {
-                type: 'app:commandReceived',
-                data: {
-                  senderName: data.senderName,
-                  command: data.command,
+      // Subscribe to CSXU filter change event
+      const unsubscribeFilterChanged = messageBus.subscribe(
+        ORCHESTRATION_EVENTS.CSPAYER_FILTER_CHANGED,
+        (data) => {
+          console.log('testStubs received CSXU:', data.csxuName)
+          setSelectedCSXU(data.csxuName)
+        },
+        'testStubs'
+      )
+
+      // Subscribe to package change event
+      const unsubscribePackageChanged = messageBus.subscribe(
+        'CSPAYER_PACKAGE_CHANGED',
+        (data) => {
+          console.log('testStubs received Package:', data.packageName)
+          setSelectedPackage(data.packageName)
+        },
+        'testStubs'
+      )
+
+      // Subscribe to app command events
+      console.log('🧪 testStubs: About to subscribe to APP_COMMAND_SENT event')
+      const unsubscribeAppCommand = messageBus.subscribe(
+        ORCHESTRATION_EVENTS.APP_COMMAND_SENT,
+        (data) => {
+          console.log('🧪 testStubs: APP_COMMAND_SENT event received:', data)
+          // Forward to iframe if it exists and is loaded
+          if (iframeRef.current && iframeRef.current.contentWindow && iframeReady) {
+            try {
+              const targetOrigin = window.location.origin
+              console.log('🧪 testStubs: iframe is ready, sending postMessage to', targetOrigin)
+              iframeRef.current.contentWindow.postMessage(
+                {
+                  type: 'app:commandReceived',
+                  data: {
+                    senderName: data.senderName,
+                    command: data.command,
+                  },
                 },
-              },
-              targetOrigin
-            )
-          } catch (error) {
-            console.error('❌ Error sending PostMessage to iframe:', error)
+                targetOrigin
+              )
+              console.log('✅ testStubs: postMessage sent successfully to iframe')
+            } catch (error) {
+              console.error('❌ Error sending PostMessage to iframe:', error)
+            }
+          } else {
+            console.log('🧪 testStubs: iframe not ready yet, queueing message. iframeRef:', !!iframeRef.current, 'contentWindow:', !!iframeRef.current?.contentWindow, 'iframeReady:', iframeReady)
+            // Queue message if iframe not ready yet
+            pendingMessagesRef.current.push(data)
           }
-        } else {
-          // Queue message if iframe not ready yet
-          pendingMessagesRef.current.push(data)
-        }
-        
-        // Also display on parent page
-        const message = `Received From App: [${data.senderName}] ${data.command}`
-        setReceivedMessages((prev) => [...prev, message])
-      },
-      'testStubs'
-    )
+          
+          // Also display on parent page
+          const message = `Received From App: [${data.senderName}] ${data.command}`
+          setReceivedMessages((prev) => [...prev, message])
+        },
+        'testStubs'
+      )
+      console.log('✅ testStubs: Successfully subscribed to APP_COMMAND_SENT')
 
-    // Cleanup subscriptions on unmount
-    return () => {
-      unsubscribeFilterChanged()
-      unsubscribePackageChanged()
-      unsubscribeAppCommand()
+      // Cleanup subscriptions on unmount
+      return () => {
+        console.log('🧪 testStubs.js: Cleanup running...')
+        unsubscribeFilterChanged()
+        unsubscribePackageChanged()
+        unsubscribeAppCommand()
+      }
+    } catch (error) {
+      console.error('❌ Error in testStubs effect:', error)
     }
+    console.log('🧪 testStubs.js: Effect complete')
   }, [])
 
   return (
-    <Layout selectedCSXU={selectedCSXU} selectedPackage={selectedPackage}>
-      <div className="max-w-4xl mx-auto">
+    <ErrorBoundary>
+      <Layout>
+        <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-800 mb-2">🧪 Test Stubs</h1>
           <p className="text-gray-600">
@@ -173,6 +201,16 @@ const TestStubsPage = () => {
         <div className="bg-gray-50 rounded-lg border border-gray-300 p-6">
           <h2 className="text-2xl font-bold text-gray-800 mb-4">📚 How It Works</h2>
 
+          <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-6">
+            <p className="text-sm text-gray-800 font-semibold">🔑 Key Architecture:</p>
+            <p className="text-sm text-gray-700 mt-2">
+              This application uses a <strong>centralized messageBus</strong> that persists across all pages and page navigations.
+              When an iframe sends a message, it gets published to this bus. When any page (including testStubs) publishes a message,
+              it gets routed to listening iframes via <code className="bg-white px-1 rounded text-xs font-mono">postMessage()</code>.
+              This creates a robust two-way communication channel between parent pages and iframes.
+            </p>
+          </div>
+
           <div className="space-y-4 text-sm text-gray-700">
             <div>
               <h3 className="font-semibold text-gray-800 mb-2">1️⃣ Communication Pattern</h3>
@@ -183,17 +221,25 @@ const TestStubsPage = () => {
             </div>
 
             <div>
-              <h3 className="font-semibold text-gray-800 mb-2">2️⃣ Message Flow</h3>
+              <h3 className="font-semibold text-gray-800 mb-2">2️⃣ Message Flow (Two-Way)</h3>
               <div className="bg-blue-50 border border-blue-200 rounded-md p-4 font-mono text-xs">
+                <div className="font-semibold text-gray-800 mb-3">📤 Iframe → Parent:</div>
                 <div>iframe sends PostMessage</div>
                 <div>  ↓</div>
                 <div>iframeAdapter receives</div>
                 <div>  ↓</div>
                 <div>messageBus publishes event</div>
                 <div>  ↓</div>
-                <div>csPlayer.js receives</div>
+                <div>Subscribed pages receive & update ✅</div>
+                
+                <div className="mt-4 pt-4 border-t border-blue-300 font-semibold text-gray-800">📥 Parent → Iframe:</div>
+                <div>Any page publishes to messageBus</div>
                 <div>  ↓</div>
-                <div>Header updates ✅</div>
+                <div>testStubs (subscriber) receives event</div>
+                <div>  ↓</div>
+                <div>testStubs sends postMessage to iframe</div>
+                <div>  ↓</div>
+                <div>iframe message listener receives ✅</div>
               </div>
             </div>
 
@@ -239,6 +285,18 @@ const TestStubsPage = () => {
                 While your iframe sends messages to the parent, the parent application may also send messages back to you.
                 This is useful when the parent needs to command your application to perform actions, display results, or update state.
               </p>
+
+              <p className="mb-3 font-semibold text-gray-800">How the Parent Sends Messages:</p>
+              <p className="mb-3">
+                Any page in the parent application can publish a message to the <code className="bg-gray-100 px-2 py-1 rounded text-xs font-mono">messageBus</code>.
+                Pages like testStubs that have subscribed to events will receive them and forward them to listening iframes.
+                This happens through a two-stage process:
+              </p>
+              <ol className="list-decimal list-inside space-y-1 mb-3">
+                <li>Parent page publishes: <code className="bg-gray-100 px-1 rounded text-xs font-mono">messageBus.publish('app:commandSent', data)</code></li>
+                <li>testStubs (or other listening page) receives the event and forwards it: <code className="bg-gray-100 px-1 rounded text-xs font-mono">iframe.contentWindow.postMessage(...)</code></li>
+                <li>Your iframe receives it via the message event listener</li>
+              </ol>
               
               <p className="mb-3 font-semibold text-gray-800">Setting Up a Message Listener:</p>
               <p className="mb-3">
@@ -400,7 +458,8 @@ const TestStubsPage = () => {
           </div>
         </div>
       </div>
-    </Layout>
+      </Layout>
+    </ErrorBoundary>
   )
 }
 

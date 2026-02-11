@@ -173,8 +173,22 @@ class MessageBus {
   }
 }
 
-// Singleton instance
-export const messageBus = new MessageBus()
+// Singleton instance - cache on window to survive module reloads
+let messageBusInstance
+
+if (typeof window !== 'undefined') {
+  if (window.__messageBusInstance) {
+    messageBusInstance = window.__messageBusInstance
+  } else {
+    messageBusInstance = new MessageBus()
+    window.__messageBusInstance = messageBusInstance
+  }
+} else {
+  // Server-side: create a temporary instance
+  messageBusInstance = new MessageBus()
+}
+
+export const messageBus = messageBusInstance
 
 // For development: expose to window for debugging
 if (typeof window !== 'undefined') {

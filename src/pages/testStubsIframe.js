@@ -10,18 +10,26 @@ const TestStubsIframePage = () => {
   // Listen for messages from parent
   React.useEffect(() => {
     const handleMessage = (event) => {
+      console.log('🪟 testStubsIframe: Received message from parent:', event.data)
+      
       // Accept messages from same origin
       if (event.origin !== window.location.origin) {
+        console.warn('🪟 testStubsIframe: Ignored message from different origin:', event.origin)
         return
       }
       
       if (event.data.type === 'app:commandReceived') {
+        console.log('🪟 testStubsIframe: Processing app:commandReceived message')
         const { senderName, command } = event.data.data
         const message = `Received From App: [${senderName}] ${command}`
+        console.log('🪟 testStubsIframe: Adding message to received list:', message)
         setReceivedMessages((prev) => [...prev, message])
+      } else {
+        console.warn('🪟 testStubsIframe: Received message but type did not match. Expected "app:commandReceived", got:', event.data.type)
       }
     }
 
+    console.log('🪟 testStubsIframe: Setting up message listener')
     window.addEventListener('message', handleMessage)
     
     return () => {

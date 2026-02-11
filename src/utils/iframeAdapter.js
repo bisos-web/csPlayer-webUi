@@ -13,7 +13,7 @@
 
 import { messageBus } from './messageBus'
 import { ORCHESTRATION_EVENTS, getServiceFromEvent } from './orchestrationEvents'
-import { setSelectedCSXU, setSelectedPackage } from './orchestrationState'
+import { getOrchestrationStore } from '../stores/orchestrationStore'
 
 // Registry of all iframes
 const iframeRegistry = {}
@@ -25,8 +25,9 @@ const iframeRegistry = {}
  * @param {HTMLIFrameElement} iframeElement - The actual iframe DOM element
  */
 export function registerIframe(serviceName, iframeElement) {
+  console.log(`🌉 iframeAdapter.registerIframe: Registering "${serviceName}"`)
   if (!iframeElement) {
-    console.error(`IframeAdapter: Could not find iframe for ${serviceName}`)
+    console.error(`🌉 iframeAdapter: Could not find iframe for ${serviceName}`)
     return
   }
 
@@ -37,7 +38,7 @@ export function registerIframe(serviceName, iframeElement) {
     errorCount: 0,
   }
 
-  console.log(`IframeAdapter: Registered iframe for service "${serviceName}"`)
+  console.log(`🌉 iframeAdapter: Registered iframe for service "${serviceName}"`)
 
   // Start listening for messages from this iframe
   setupMessageListener()
@@ -98,11 +99,17 @@ export function sendToIframe(serviceName, eventName, data = {}) {
 let messageListenerSetup = false
 
 function setupMessageListener() {
-  if (messageListenerSetup) return
+  console.log('🌉 iframeAdapter.setupMessageListener: Setting up...')
+  if (messageListenerSetup) {
+    console.log('🌉 iframeAdapter.setupMessageListener: Already setup, skipping')
+    return
+  }
 
   messageListenerSetup = true
+  console.log('🌉 iframeAdapter.setupMessageListener: Adding message listener')
 
   window.addEventListener('message', (event) => {
+    console.log('🌉 iframeAdapter: Received message', event.data)
     // Handle ORCHESTRATION_MESSAGE type (standard format)
     if (event.data.type === 'ORCHESTRATION_MESSAGE') {
       const { eventName, data, sender } = event.data
@@ -114,7 +121,7 @@ function setupMessageListener() {
 
       if (!service) {
         console.warn(
-          'IframeAdapter: Received message from unknown iframe:',
+          '🌉 iframeAdapter: Received message from unknown iframe:',
           event.data
         )
         return
@@ -133,11 +140,11 @@ function setupMessageListener() {
         data
       )
       
-      // Also persist state for navigation persistence
+      // Also persist state to Zustand store for navigation persistence
       if (eventName === ORCHESTRATION_EVENTS.CSPAYER_FILTER_CHANGED && data.csxuName) {
-        setSelectedCSXU(data.csxuName)
+        getOrchestrationStore().getState().setSelectedCSXU(data.csxuName)
       } else if (eventName === 'CSPAYER_PACKAGE_CHANGED' && data.packageName) {
-        setSelectedPackage(data.packageName)
+        getOrchestrationStore().getState().setSelectedPackage(data.packageName)
       }
       
       messageBus.publish(eventName, data, service)
@@ -152,12 +159,12 @@ function setupMessageListener() {
 
       console.log(`IframeAdapter: Received direct message "${type}"`, data)
 
-      // Convert to internal event format and persist state
+      // Convert to internal event format and persist state to Zustand
       if (type === 'csPlayer:filterChanged') {
-        setSelectedCSXU(data.csxuName)
+        getOrchestrationStore().getState().setSelectedCSXU(data.csxuName)
         messageBus.publish(ORCHESTRATION_EVENTS.CSPAYER_FILTER_CHANGED, data, 'test-stub')
       } else if (type === 'csPlayer:packageChanged') {
-        setSelectedPackage(data.packageName)
+        getOrchestrationStore().getState().setSelectedPackage(data.packageName)
         messageBus.publish('CSPAYER_PACKAGE_CHANGED', data, 'test-stub')
       }
       return

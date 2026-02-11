@@ -1,7 +1,10 @@
 import * as React from "react"
 import { Link } from "gatsby"
+import { useOrchestration } from "../stores/orchestrationStore"
 
-export default function Header({ selectedCSXU = null, selectedPackage = null }) {
+export default function Header() {
+  const { selectedCSXU, selectedPackage } = useOrchestration()
+
   return (
     <header className="bg-bystar-navy text-white px-4 md:px-8 py-6 border-b-4 border-bystar-light-mint">
       <div className="max-w-7xl mx-auto">

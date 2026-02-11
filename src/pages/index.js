@@ -2,24 +2,10 @@ import React from "react"
 import { Link } from "gatsby"
 import Layout from "../components/Layout"
 import Seo from "../components/seo"
-import { getOrchestrationState } from "../utils/orchestrationState"
 
 const IndexPage = () => {
-  const [selectedCSXU, setSelectedCSXU] = React.useState(null)
-  const [selectedPackage, setSelectedPackage] = React.useState(null)
-
-  React.useEffect(() => {
-    // Load persisted state on mount
-    const persistedState = getOrchestrationState()
-    setSelectedCSXU(persistedState.selectedCSXU)
-    setSelectedPackage(persistedState.selectedPackage)
-  }, [])
-
   return (
-  <Layout 
-    selectedCSXU={selectedCSXU}
-    selectedPackage={selectedPackage}
-  >
+  <Layout>
     <div className="max-w-6xl mx-auto px-4 w-full overflow-hidden">
       {/* Hero Section */}
       <section className="pt-10 pb-6 border-b border-gray-200 mb-12">
