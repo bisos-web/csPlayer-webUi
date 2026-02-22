@@ -95,9 +95,37 @@ const CsPlayerBackEndPage = () => {
                 rel="noopener noreferrer"
                 className="block w-full px-6 py-3 bg-blue-600 text-white text-center rounded-lg hover:bg-blue-700 transition font-semibold"
               >
-                ✨ Open Django Admin in New Window
+                ✨ Open Django :: /admin in New Window
               </a>
-              
+
+              <a
+                href="http://csPlayerPerf.here/api/schema/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full px-6 py-3 bg-blue-600 text-white text-center rounded-lg hover:bg-blue-700 transition font-semibold"
+              >
+                ✨ Open Django :: /api/schema in New Window
+              </a>
+
+              <a
+                href="http://csPlayerPerf.here/api/schema/swagger-ui/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full px-6 py-3 bg-blue-600 text-white text-center rounded-lg hover:bg-blue-700 transition font-semibold"
+              >
+                ✨ Open Django :: /api/schema/swagger-ui in New Window
+              </a>
+
+              <a
+                href="http://csPlayerPerf.here/api/schema/redoc/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full px-6 py-3 bg-blue-600 text-white text-center rounded-lg hover:bg-blue-700 transition font-semibold"
+              >
+                ✨ Open Django :: /api/schema/redoc in New Window
+              </a>
+
+
               <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded">
                 <h3 className="font-semibold text-blue-900 mb-2">How to use:</h3>
                 <ol className="list-decimal list-inside space-y-1 text-sm text-blue-800">
