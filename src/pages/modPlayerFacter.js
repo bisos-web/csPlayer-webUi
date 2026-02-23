@@ -5,11 +5,13 @@ import { registerIframe } from "../utils/iframeAdapter"
 import { messageBus } from "../utils/messageBus"
 import { ORCHESTRATION_EVENTS } from "../utils/orchestrationEvents"
 import { getOrchestrationState } from "../utils/orchestrationState"
+import { getServiceUrl } from "../utils/serviceConfig"
 
 const CsPlayerPage = () => {
   const iframeRef = React.useRef(null)
   const [selectedCSXU, setSelectedCSXU] = React.useState(null)
   const [selectedPackage, setSelectedPackage] = React.useState(null)
+  const cslineInvokerUrl = getServiceUrl('cslineInvoker')
 
   // Initialize state from persistent storage and register iframe
   React.useEffect(() => {
@@ -72,10 +74,22 @@ const CsPlayerPage = () => {
     <Layout selectedCSXU={selectedCSXU} selectedPackage={selectedPackage}>
       <div className="w-full h-full flex flex-col">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-200 bg-white flex justify-between items-center">
+        <div className="px-6 py-4 border-b border-gray-200 bg-white">
           <div>
             <h1 className="text-3xl font-bold text-blue-900">🖥️ Build and Execute CSXU Command Lines</h1>
-            <p className="text-gray-600 text-sm mt-1">Build, execute and monitor Command Services eXecution Unit command lines across destinations</p>
+            <div className="flex items-end justify-between mt-1">
+              <p className="text-gray-600 text-sm">Build, execute and monitor Command Services eXecution Unit command lines across destinations</p>
+              {/* URL Badge - Right bottom */}
+              <a
+                href={cslineInvokerUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2 py-1 rounded font-mono transition whitespace-nowrap ml-4"
+                title="Click to open in new tab"
+              >
+                {cslineInvokerUrl} ↗
+              </a>
+            </div>
           </div>
         </div>
 
@@ -83,7 +97,7 @@ const CsPlayerPage = () => {
         <div className="flex-1 overflow-hidden">
           <iframe
             ref={iframeRef}
-            src="http://csLineInvoker.here"
+            src={cslineInvokerUrl}
             title="Web CLI GUI"
             className="w-full h-full border-0"
             style={{ minHeight: "600px" }}
@@ -93,7 +107,7 @@ const CsPlayerPage = () => {
         {/* Loading Message */}
         <div className="hidden" id="loading-message">
           <div className="p-4 bg-blue-50 text-blue-800">
-            Loading Web CLI GUI... Make sure the service is running on http://csLineInvoker.here
+            Loading Web CLI GUI... Make sure the service is running on {cslineInvokerUrl}
           </div>
         </div>
       </div>

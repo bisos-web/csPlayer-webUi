@@ -5,11 +5,13 @@ import { registerIframe } from "../utils/iframeAdapter"
 import { messageBus } from "../utils/messageBus"
 import { ORCHESTRATION_EVENTS } from "../utils/orchestrationEvents"
 import { getOrchestrationState } from "../utils/orchestrationState"
+import { getServiceUrl } from "../utils/serviceConfig"
 
 const CsPlayerBackEndPage = () => {
   const iframeRef = React.useRef(null)
   const [selectedCSXU, setSelectedCSXU] = React.useState(null)
   const [selectedPackage, setSelectedPackage] = React.useState(null)
+  const csplayerPerformerUrl = getServiceUrl('csplayerPerformer')
 
   // Initialize state from persistent storage and register iframe
   React.useEffect(() => {
@@ -73,8 +75,22 @@ const CsPlayerBackEndPage = () => {
       <div className="w-full flex flex-col" style={{ height: 'calc(100vh - 200px)' }}>
         {/* Header */}
         <div className="px-6 py-4 border-b border-gray-200 bg-white">
-          <h1 className="text-3xl font-bold text-blue-900">�️ Django Back-End Performer Api Admin</h1>
-          <p className="text-gray-600 text-sm mt-1">Access the Django administration interface</p>
+          <div>
+            <h1 className="text-3xl font-bold text-blue-900">🔧 Django Back-End Performer API Admin</h1>
+            <div className="flex items-end justify-between mt-1">
+              <p className="text-gray-600 text-sm">Access the Django administration interface</p>
+              {/* URL Badge - Right bottom */}
+              <a
+                href={csplayerPerformerUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2 py-1 rounded font-mono transition whitespace-nowrap ml-4"
+                title="Click to open in new tab"
+              >
+                {csplayerPerformerUrl} ↗
+              </a>
+            </div>
+          </div>
         </div>
 
         {/* Main Content Area */}
@@ -90,7 +106,7 @@ const CsPlayerBackEndPage = () => {
 
             <div className="space-y-4">
               <a 
-                href="http://csPlayerPerf.here/admin/"
+                href={`${csplayerPerformerUrl}/admin/`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block w-full px-6 py-3 bg-blue-600 text-white text-center rounded-lg hover:bg-blue-700 transition font-semibold"
@@ -99,7 +115,7 @@ const CsPlayerBackEndPage = () => {
               </a>
 
               <a
-                href="http://csPlayerPerf.here/api/schema/"
+                href={`${csplayerPerformerUrl}/api/schema/`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block w-full px-6 py-3 bg-blue-600 text-white text-center rounded-lg hover:bg-blue-700 transition font-semibold"
@@ -108,7 +124,7 @@ const CsPlayerBackEndPage = () => {
               </a>
 
               <a
-                href="http://csPlayerPerf.here/api/schema/swagger-ui/"
+                href={`${csplayerPerformerUrl}/api/schema/swagger-ui/`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block w-full px-6 py-3 bg-blue-600 text-white text-center rounded-lg hover:bg-blue-700 transition font-semibold"
@@ -117,7 +133,7 @@ const CsPlayerBackEndPage = () => {
               </a>
 
               <a
-                href="http://csPlayerPerf.here/api/schema/redoc/"
+                href={`${csplayerPerformerUrl}/api/schema/redoc/`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="block w-full px-6 py-3 bg-blue-600 text-white text-center rounded-lg hover:bg-blue-700 transition font-semibold"

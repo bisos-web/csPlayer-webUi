@@ -14,6 +14,7 @@ const TestStubsPage = () => {
   const [iframeReady, setIframeReady] = React.useState(false)
   const [receivedMessages, setReceivedMessages] = React.useState([])
   const [error, setError] = React.useState(null)
+  const testStubsIframeUrl = '/testStubsIframe'
   
   // Enable localStorage persistence for the orchestration store
   console.log('🧪 testStubs.js: Calling useOrchestrationPersistence')
@@ -119,10 +120,15 @@ const TestStubsPage = () => {
       <Layout>
         <div className="max-w-4xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">🧪 Test Stubs</h1>
-          <p className="text-gray-600">
-            Test the PostMessage communication pattern that cliRun-FrontEnd will use.
-          </p>
+          <div className="flex items-end justify-between">
+            <div>
+              <h1 className="text-4xl font-bold text-gray-800 mb-2">🧪 Test Stubs</h1>
+              <p className="text-gray-600">
+                Test the PostMessage communication pattern that cliRun-FrontEnd will use.
+              </p>
+            </div>
+            <a href={testStubsIframeUrl} className="text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50 px-2 py-1 rounded font-mono transition whitespace-nowrap ml-4 mb-1" title="Internal test iframe page">{testStubsIframeUrl} →</a>
+          </div>
         </div>
 
         {/* Iframe Container */}

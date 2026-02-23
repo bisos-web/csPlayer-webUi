@@ -98,11 +98,25 @@ export function setSelectedPackage(packageName) {
  * Clear state (for testing)
  */
 export function clearOrchestrationState() {
-  orchestrationState = {
-    selectedCSXU: null,
-    selectedPackage: null,
-  };
-  console.log('OrchestrationState cleared');
+  if (typeof window === 'undefined') {
+    console.log('orchestrationState: Skipping clear on server');
+    return;
+  }
+
+  if (window.__getOrchestrationStore) {
+    try {
+      const store = window.__getOrchestrationStore();
+      if (store) {
+        store.setState({
+          selectedCSXU: null,
+          selectedPackage: null,
+        });
+        console.log('OrchestrationState cleared');
+      }
+    } catch (error) {
+      console.error('Error clearing orchestration state:', error);
+    }
+  }
 }
 
 // For debugging

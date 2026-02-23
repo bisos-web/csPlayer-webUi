@@ -1,18 +1,27 @@
-#+TITLE: BISOS Command Service CLI Web UI - Design Document
+#+TITLE: BISOS Command Service CLI Web UI - csPlayer Design Document
 #+AUTHOR: BISOS Development Team
-#+DATE: January 24, 2026
+#+DATE: February 22, 2026
 #+STARTUP: overview
 #+OPTIONS: toc:t H:3
 
-A unified dashboard orchestrating multiple command-line and infrastructure services through an iframe-based architecture. Provides seamless integration between csPlayer (command execution), Airflow (workflow orchestration), and Grafana (metrics visualization) through a centralized Gatsby-based dashboard.
+_About csLineInvoker Web User Interface_
 
-Built with Gatsby 5, React 18, Tailwind CSS 3.4.17, PostMessage API, and a Pub/Sub event system for cross-service communication.
+A unified dashboard orchestrating multiple command-line and infrastructure
+services through an iframe-based architecture. Provides seamless integration
+between csLineInvoker (command execution), Airflow (workflow orchestration), and
+Grafana (metrics visualization) through a centralized Gatsby-based dashboard.
+
+Built with Gatsby 5, React 18, Tailwind CSS 3.4.17, PostMessage API, and
+a Pub/Sub event system for cross-service communication.
 
 * Table of Contents     :TOC:
 - [[#project-overview][Project Overview]]
   - [[#vision][Vision]]
   - [[#architecture-approach][Architecture Approach]]
   - [[#key-technologies][Key Technologies]]
+- [[#configuration][Configuration]]
+  - [[#service-urls-configuration][Service URLs Configuration]]
+  - [[#invokerperformer-abstraction][Invoker/Performer Abstraction]]
 - [[#architecture][Architecture]]
   - [[#system-design][System Design]]
   - [[#component-services][Component Services]]
@@ -23,7 +32,7 @@ Built with Gatsby 5, React 18, Tailwind CSS 3.4.17, PostMessage API, and a Pub/S
   - [[#iframe-adapter][Iframe Adapter]]
   - [[#event-system][Event System]]
 - [[#service-integration][Service Integration]]
-  - [[#csplayer-webcligui-integration][csPlayer (WebCliGui) Integration]]
+  - [[#cslineinvoker-webcligui-integration][csLineInvoker (WebCliGui) Integration]]
   - [[#airflow-integration][Airflow Integration]]
   - [[#grafana-integration][Grafana Integration]]
 - [[#implementation-status][Implementation Status]]
@@ -34,6 +43,8 @@ Built with Gatsby 5, React 18, Tailwind CSS 3.4.17, PostMessage API, and a Pub/S
   - [[#project-structure][Project Structure]]
   - [[#running-the-dashboard][Running the Dashboard]]
   - [[#debugging][Debugging]]
+- [[#ui-enhancements][UI Enhancements]]
+  - [[#iframe-url-display-in-headers][iframe URL Display in Headers]]
 - [[#deployment-considerations][Deployment Considerations]]
   - [[#security][Security]]
 - [[#appendix][Appendix]]
@@ -52,7 +63,7 @@ Built with Gatsby 5, React 18, Tailwind CSS 3.4.17, PostMessage API, and a Pub/S
 
 The BISOS Command Service CLI Web UI is a unified dashboard for managing, monitoring, and orchestrating multiple command-line services and infrastructure tools. It provides a single point of access to:
 
-- *csPlayer (WebCliGui)*: Execute and monitor command-line tasks across servers
+- *csLineInvoker (WebCliGui)*: Execute and monitor command-line tasks across servers
 - *Airflow*: Schedule and orchestrate complex workflows
 - *Grafana*: Visualize and monitor system metrics
 
@@ -65,12 +76,12 @@ The vision is to create a cohesive ecosystem where these independent services wo
 
 Instead of merging multiple frontend projects, we take a *modular iframe orchestration approach*:
 
-1. *Independent Services*: Each service (csPlayer, Airflow, Grafana) remains independent
+1. *Independent Services*: Each service (csLineInvoker, Airflow, Grafana) remains independent
    - Maintains its own codebase, dependencies, technology stack
    - Runs on separate ports (9002, 8080, 3000)
    - Can be updated/deployed independently
 
-2. *Orchestration Host*: Gatsby-based dashboard (csPlayer-webUi) serves as the orchestrator
+2. *Orchestration Host*: Gatsby-based dashboard (csLineInvoker-webUi) serves as the orchestrator
    - Runs on port 8000
    - Embeds each service in its own iframe
    - Manages cross-service communication via PostMessage API
@@ -91,6 +102,130 @@ Instead of merging multiple frontend projects, we take a *modular iframe orchest
 - *PostMessage API*: Cross-iframe communication
 - *Pub/Sub Pattern*: Message bus for event routing
 - *Node.js 22.21.1*: Runtime environment
+- *Environment Variables*: Runtime configuration via .env files
+
+* Configuration
+:PROPERTIES:
+:CUSTOM_ID: configuration
+:END:
+
+** Service URLs Configuration
+:PROPERTIES:
+:CUSTOM_ID: service-urls-configuration
+:END:
+
+*** Overview
+
+Service URLs are configured via environment variables using Gatsby's built-in dotenv support. This allows different URLs for development and production without code changes.
+
+*** Environment Files
+
+Gatsby automatically loads environment-specific files:
+
+- ~.env.development~ - Used by `npm run develop` (development mode)
+- ~.env.production~ - Used by `npm run build` (production mode)
+- ~.env~ - Fallback if environment-specific file not found
+
+*** Variable Naming Convention
+
+All service URL variables use the ~GATSBY_~ prefix (required by Gatsby to expose variables to the browser):
+
+#+BEGIN_SRC bash
+GATSBY_CSLINE_INV_URL=http://csLineInvoker.here        # Invoker: Command submission UI
+GATSBY_CSPLAYER_PERF_URL=http://csLineInvokerPerf.here      # Performer: Command execution engine
+GATSBY_AIRFLOW_URL=http://localhost:8080               # Workflow orchestration
+GATSBY_GRAFANA_URL=http://localhost:3000               # Metrics visualization
+#+END_SRC
+
+*** Configuration Files Content
+
+**Development (.env.development):**
+#+BEGIN_SRC bash
+GATSBY_CSLINE_INV_URL=http://csLineInvoker.here
+GATSBY_CSPLAYER_PERF_URL=http://csLineInvokerPerf.here
+GATSBY_AIRFLOW_URL=http://localhost:8080
+GATSBY_GRAFANA_URL=http://localhost:3000
+#+END_SRC
+
+**Production (.env.production):**
+#+BEGIN_SRC bash
+GATSBY_CSLINE_INV_URL=https://csplayer.example.com
+GATSBY_CSPLAYER_PERF_URL=https://csplayer-backend.example.com
+GATSBY_AIRFLOW_URL=https://airflow.example.com
+GATSBY_GRAFANA_URL=https://grafana.example.com
+#+END_SRC
+
+*** Service Configuration Utility
+
+Location: =src/utils/serviceConfig.js=
+
+The configuration utility centralizes URL management and provides fallback defaults:
+
+#+BEGIN_SRC javascript
+import { getServiceUrl } from "../utils/serviceConfig"
+
+// Get specific service URL
+const cslineInvokerUrl = getServiceUrl('cslineInvoker')
+const csplayerPerformerUrl = getServiceUrl('csplayerPerformer')
+const airflowUrl = getServiceUrl('airflow')
+const grafanaUrl = getServiceUrl('grafana')
+
+// Debug: view all URLs in browser console
+window.__serviceUrls()
+#+END_SRC
+
+*** Usage in Components
+
+All iframe pages now use the service configuration utility:
+
+- =src/pages/csPlayer.js= - Invoker UI (cslineInvoker)
+- =src/pages/csLineInvokerBackEnd.js= - Performer API (csplayerPerformer)
+- =src/pages/modPlayerFacter.js= - Invoker variant (cslineInvoker)
+- =src/pages/modPlayerSoncli.js= - Invoker variant (cslineInvoker)
+- =src/pages/airflow.js= - Airflow service
+- =src/pages/grafana.js= - Grafana service
+
+** Invoker/Performer Abstraction
+:PROPERTIES:
+:CUSTOM_ID: invokerperformer-abstraction
+:END:
+
+*** RPC/Web Services Perspective
+
+The csLineInvoker ecosystem uses the Invoker/Performer abstraction pattern from RPC and Web Services architecture:
+
+- *CSLINE_INV (Invoker)*: Client-facing UI that builds and invokes commands
+  - Narrow scope: command-line focused
+  - User interface for command building and submission
+  - Multiple instances possible (modPlayerFacter, modPlayerSoncli, csLineInvoker)
+
+- *CSPLAYER_PERF (Performer)*: Execution engine with broader scope
+  - Server-side command executor
+  - Serves multiple invokers and clients
+  - Single point of command execution
+  - Can be scaled independently from invokers
+
+*** Architecture Diagram
+
+#+BEGIN_SRC
+┌──────────────────────────────────────────────────────────────┐
+│         CSPLAYER_PERF (Performer)                            │
+│    Single execution engine with broader scope                │
+│                                                              │
+│  Executes commands for:                                     │
+│  - CSLINE_INV (current invoker)                             │
+│  - Other invokers (potential)                               │
+│  - Direct API calls                                         │
+│  - Batch operations                                         │
+└──────────────────────────────────────────────────────────────┘
+         ▲                                    ▲
+         │                                    │
+    ┌────┴──────────┐              ┌─────────┴────────┐
+    │  CSLINE_INV   │              │  Other Invokers  │
+    │   (narrow     │              │   (potential)    │
+    │   scope)      │              │                  │
+    └───────────────┘              └──────────────────┘
+#+END_SRC
 
 * Architecture
 :PROPERTIES:
@@ -130,7 +265,7 @@ Instead of merging multiple frontend projects, we take a *modular iframe orchest
 └──────────────┼──────────┼──────────┼──────────────────────────┘
                │          │          │
         ┌──────▼──┐  ┌──────▼──┐  ┌──▼──────┐
-        │csPlayer │  │ Airflow │  │ Grafana │
+        │csLineInvoker │  │ Airflow │  │ Grafana │
         │ iframe  │  │ iframe  │  │ iframe  │
         │ :9002   │  │ :8080   │  │ :3000   │
         └─────────┘  └─────────┘  └─────────┘
@@ -143,7 +278,7 @@ Instead of merging multiple frontend projects, we take a *modular iframe orchest
 
 | Service  | Port | Role                           | Technology     |
 |----------+------+--------------------------------+----------------|
-| csPlayer | 9002 | Command execution & monitoring | React + Django |
+| csLineInvoker | 9002 | Command execution & monitoring | React + Django |
 | Airflow  | 8080 | Workflow orchestration         | Python + Flask |
 | Grafana  | 3000 | Metrics & visualization        | Go + Node      |
 
@@ -250,17 +385,17 @@ Central registry of all events the system supports. Ensures consistency across p
 
 *** Events by Service
 
-**** csPlayer Events
+**** csLineInvoker Events
 
-Parent → csPlayer Commands:
-- ~csPlayer:filterChanged~ - User changed filters
-- ~csPlayer:refreshTasks~ - Refresh task list
-- ~csPlayer:executeCommand~ - Execute command
+Parent → csLineInvoker Commands:
+- ~csLineInvoker:filterChanged~ - User changed filters
+- ~csLineInvoker:refreshTasks~ - Refresh task list
+- ~csLineInvoker:executeCommand~ - Execute command
 
-csPlayer → Parent Events:
-- ~csPlayer:taskExecuted~ - Task completed successfully
-- ~csPlayer:taskFailed~ - Task failed with error
-- ~csPlayer:statusUpdated~ - Status changed (idle → executing)
+csLineInvoker → Parent Events:
+- ~csLineInvoker:taskExecuted~ - Task completed successfully
+- ~csLineInvoker:taskFailed~ - Task failed with error
+- ~csLineInvoker:statusUpdated~ - Status changed (idle → executing)
 
 **** Airflow Events (Ready to Add)
 
@@ -286,14 +421,14 @@ Grafana → Parent Events:
 :CUSTOM_ID: service-integration
 :END:
 
-** csPlayer (WebCliGui) Integration
+** csLineInvoker (WebCliGui) Integration
 :PROPERTIES:
 :CUSTOM_ID: cspayer-webcliguiintegration
 :END:
 
 *** Status: Phase 1 - Parent Ready, Awaiting Child Integration
 
-The parent (Gatsby dashboard) is fully set up to communicate with csPlayer. The csPlayer iframe needs to be integrated.
+The parent (Gatsby dashboard) is fully set up to communicate with csLineInvoker. The csLineInvoker iframe needs to be integrated.
 
 *** Parent-Side Implementation (Complete ✓)
 
@@ -301,9 +436,9 @@ Location: =src/pages/csPlayer.js=
 
 *** Child-Side Implementation (Template Provided)
 
-Location: =src/templates/csPlayerClient.template.js= (Ready to copy to webCliGui)
+Location: =src/templates/csLineInvokerClient.template.js= (Ready to copy to webCliGui)
 
-Key functions to implement in csPlayer/webCliGui:
+Key functions to implement in csLineInvoker/webCliGui:
 
 - ~initializeOrchestration()~ - Call on app startup
 - ~sendToParent(eventName, data)~ - Send events to parent
@@ -311,7 +446,7 @@ Key functions to implement in csPlayer/webCliGui:
 
 *** Integration Checklist
 
-- [ ] Copy =csPlayerClient.template.js= to webCliGui
+- [ ] Copy =csLineInvokerClient.template.js= to webCliGui
 - [ ] Import ~initializeOrchestration()~ in main app component
 - [ ] Call ~initializeOrchestration()~ in useEffect on app load
 - [ ] Replace task completion handlers to use ~sendToParent()~
@@ -324,19 +459,19 @@ Key functions to implement in csPlayer/webCliGui:
 
 *** Status: Phase 2 - Ready to Begin
 
-The infrastructure supports Airflow integration with identical pattern to csPlayer.
+The infrastructure supports Airflow integration with identical pattern to csLineInvoker.
 
 *** Parent-Side (Template Ready)
 
-Similar to csPlayer:
+Similar to csLineInvoker:
 1. Create or enhance =src/pages/airflow.js=
 2. Register iframe: ~registerIframe('airflow', iframeElement)~
 3. Subscribe to events: ~messageBus.subscribe(ORCHESTRATION_EVENTS.AIRFLOW_*)~
 
 *** Child-Side (Template Reusable)
 
-Airflow will use same pattern as csPlayer:
-1. Copy =csPlayerClient.template.js= pattern to Airflow UI
+Airflow will use same pattern as csLineInvoker:
+1. Copy =csLineInvokerClient.template.js= pattern to Airflow UI
 2. Call ~initializeOrchestration()~ on startup
 3. Send events when workflows trigger/complete
 
@@ -353,7 +488,7 @@ Like Airflow, Grafana follows the same integration pattern.
 
 - Grafana UI is read-heavy (monitoring focus)
 - Communication primarily Parent → Grafana (dashboard switching, time range changes)
-- Events from Grafana less frequent than csPlayer/Airflow
+- Events from Grafana less frequent than csLineInvoker/Airflow
 
 * Implementation Status
 :PROPERTIES:
@@ -370,7 +505,7 @@ Like Airflow, Grafana follows the same integration pattern.
 - [x] Message bus system (~messageBus.js~)
 - [x] Iframe adapter (~iframeAdapter.js~)
 - [x] Event registry (~orchestrationEvents.js~)
-- [x] csPlayer page integrated (~src/pages/csPlayer.js~)
+- [x] csLineInvoker page integrated (~src/pages/csPlayer.js~)
 - [x] Airflow page created (~src/pages/airflow.js~)
 - [x] Grafana page created (~src/pages/grafana.js~)
 - [x] Explore landing page (~src/pages/explore.js~)
@@ -394,9 +529,9 @@ Like Airflow, Grafana follows the same integration pattern.
 :CUSTOM_ID: phase-2-pending
 :END:
 
-*** csPlayer Integration
+*** csLineInvoker Integration
 
-- [ ] Integrate csPlayerClient code into webCliGui
+- [ ] Integrate csLineInvokerClient code into webCliGui
 - [ ] Call ~initializeOrchestration()~ on app startup
 - [ ] Update task handlers to send events via ~sendToParent()~
 - [ ] Test full parent-child communication
@@ -428,13 +563,16 @@ Like Airflow, Grafana follows the same integration pattern.
 :END:
 
 #+BEGIN_SRC
-csPlayer-webUi/
+csLineInvoker-webUi/
 ├── src/
 │   ├── pages/
 │   │   ├── index.js                    # Homepage with service overview
-│   │   ├── csPlayer.js                 # csPlayer iframe page (orchestrated)
-│   │   ├── airflow.js                  # Airflow iframe page (orchestrated)
-│   │   ├── grafana.js                  # Grafana iframe page (orchestrated)
+│   │   ├── csPlayer.js                 # csLineInvoker iframe page (invoker, with config)
+│   │   ├── csLineInvokerBackEnd.js          # Django performer API admin page (with config)
+│   │   ├── modPlayerFacter.js          # Alternative invoker variant (with config)
+│   │   ├── modPlayerSoncli.js          # Alternative invoker variant (with config)
+│   │   ├── airflow.js                  # Airflow iframe page (with config)
+│   │   ├── grafana.js                  # Grafana iframe page (with config)
 │   │   ├── explore.js                  # Resource hub page
 │   │   └── explore/
 │   │       ├── help.js
@@ -452,9 +590,12 @@ csPlayer-webUi/
 │   ├── utils/
 │   │   ├── orchestrationEvents.js      # Event registry
 │   │   ├── messageBus.js               # Pub/Sub system
-│   │   └── iframeAdapter.js            # PostMessage bridge
+│   │   ├── iframeAdapter.js            # PostMessage bridge
+│   │   └── serviceConfig.js            # Service URLs configuration (NEW)
 │   └── templates/
-│       └── csPlayerClient.template.js  # csPlayer integration template
+│       └── csLineInvokerClient.template.js  # csLineInvoker integration template
+├── .env.development                    # Development environment variables (NEW)
+├── .env.production                     # Production environment variables (NEW)
 ├── ORCHESTRATION.md                    # API reference
 ├── ORCHESTRATION_SETUP.md              # Setup guide
 ├── TESTING_GUIDE.md                    # Testing procedures
@@ -475,7 +616,7 @@ csPlayer-webUi/
 *** Start Development Server
 
 #+BEGIN_SRC bash
-cd /bisos/git/auth/bxRepos/bisos-web/csPlayer-webUi
+cd /bisos/git/auth/bxRepos/bisos-web/csLineInvoker-webUi
 npm install
 npm run develop
 #+END_SRC
@@ -509,6 +650,54 @@ window.__iframeAdapter.status()         // Check iframe connections
 window.__iframeAdapter.registry()       // View registered iframes
 window.__iframeAdapter.send(service, event, data)  // Send test message
 #+END_SRC
+
+* UI Enhancements
+:PROPERTIES:
+:CUSTOM_ID: ui-enhancements
+:END:
+
+** iframe URL Display in Headers
+:PROPERTIES:
+:CUSTOM_ID: iframe-url-display
+:END:
+
+*** Purpose
+
+Every iframe page now displays its configured URL in the header for:
+
+- **Debugging**: Developers can immediately see which URL is loaded
+- **Transparency**: Users know where the content comes from
+- **Configuration visibility**: Shows which environment (dev/prod) is active
+- **Quick access**: Clickable to open in new tab if iframe fails
+
+*** Implementation
+
+All iframe pages now include a URL badge in the page header:
+
+- **Location**: Right-aligned in header, below description text
+- **Style**: Small, monospace font, blue color
+- **Interactivity**: Clickable link (opens in new tab), hover effect
+- **Icon**: Arrow (↗) indicates external link
+
+*** Pages with URL Display
+
+✓ =src/pages/csPlayer.js= - Shows cslineInvoker URL
+✓ =src/pages/csLineInvokerBackEnd.js= - Shows csplayerPerformer URL
+✓ =src/pages/modPlayerFacter.js= - Shows cslineInvoker URL
+✓ =src/pages/modPlayerSoncli.js= - Shows cslineInvoker URL
+✓ =src/pages/airflow.js= - Shows airflow URL
+✓ =src/pages/grafana.js= - Shows grafana URL
+
+*** Visual Example
+
+#+BEGIN_SRC
+┌────────────────────────────────────────────────────────────────┐
+│  🖥️ Build and Execute CSXU Command Lines                       │
+│  Build, execute and monitor...       http://csLineInvoker... ↗  │
+└────────────────────────────────────────────────────────────────┘
+```
+
+The URL is right-aligned on the same line as the description text, in blue, and clickable.
 
 * Deployment Considerations
 :PROPERTIES:
@@ -546,35 +735,47 @@ This architecture assumes a *trusted internal ecosystem*:
 
 *** Core Orchestration Files
 
-| File | Lines | Purpose | Status |
-|------|-------|---------|--------|
-| =src/utils/orchestrationEvents.js= | 40 | Event registry | ✓ Complete |
-| =src/utils/messageBus.js= | 130 | Pub/Sub system | ✓ Complete |
-| =src/utils/iframeAdapter.js= | 180 | PostMessage bridge | ✓ Complete |
-| =src/templates/csPlayerClient.template.js= | 150 | csPlayer integration template | ✓ Complete |
+| File                                          | Lines | Purpose                            | Status     |
+|-----------------------------------------------+-------+------------------------------------+------------|
+| =src/utils/orchestrationEvents.js=              |    40 | Event registry                     | ✓ Complete |
+| =src/utils/messageBus.js=                       |   130 | Pub/Sub system                     | ✓ Complete |
+| =src/utils/iframeAdapter.js=                    |   180 | PostMessage bridge                 | ✓ Complete |
+| =src/utils/serviceConfig.js=                    |    35 | Service URLs configuration         | ✓ Complete |
+| =src/templates/csLineInvokerClient.template.js= |   150 | csLineInvoker integration template | ✓ Complete |
+
+*** Configuration Files
+
+| File             | Purpose                  | Status     |
+|------------------+--------------------------+------------|
+| =.env.development= | Development service URLs | ✓ Complete |
+| =.env.production=  | Production service URLs  | ✓ Complete |
 
 *** Page Components
 
-| File | Purpose | Status |
-|------|---------|--------|
-| =src/pages/index.js= | Homepage with service overview | ✓ Complete |
-| =src/pages/csPlayer.js= | csPlayer iframe page (orchestrated) | ✓ Complete |
-| =src/pages/airflow.js= | Airflow iframe page (orchestrated) | ✓ Complete |
-| =src/pages/grafana.js= | Grafana iframe page (orchestrated) | ✓ Complete |
-| =src/pages/explore.js= | Resource hub | ✓ Complete |
+| File                              | Purpose                                           | Status     |
+|-----------------------------------+---------------------------------------------------+------------|
+| =src/pages/index.js=                | Homepage with service overview                    | ✓ Complete |
+| =src/pages/csPlayer.js=             | csLineInvoker/invoker iframe (config + URL badge) | ✓ Complete |
+| =src/pages/csLineInvokerBackEnd.js= | Performer API admin (config + URL badge)          | ✓ Complete |
+| =src/pages/modPlayerFacter.js=      | Alternative invoker (config + URL badge)          | ✓ Complete |
+| =src/pages/modPlayerSoncli.js=      | Alternative invoker (config + URL badge)          | ✓ Complete |
+| =src/pages/airflow.js=              | Airflow iframe (config + URL badge)               | ✓ Complete |
+| =src/pages/grafana.js=              | Grafana iframe (config + URL badge)               | ✓ Complete |
+| =src/pages/testStubs.js=            | Test stubs iframe (config + URL badge)            | ✓ Complete |
+| =src/pages/explore.js=              | Resource hub                                      | ✓ Complete |
 
 ** Event Registry
 :PROPERTIES:
 :CUSTOM_ID: event-registry
 :END:
 
-*** csPlayer Events
+*** csLineInvoker Events
 
-| Event | Direction | Payload | Purpose |
-|-------|-----------|---------|---------|
-| =csPlayer:filterChanged= | Parent → Child | ={environment, server, user}= | User changed filters |
-| =csPlayer:taskExecuted= | Child → Parent | ={taskId, output, duration}= | Task completed |
-| =csPlayer:taskFailed= | Child → Parent | ={taskId, errorMessage}= | Task failed |
+| Event                       | Direction      | Payload                     | Purpose              |
+|-----------------------------+----------------+-----------------------------+----------------------|
+| =csLineInvoker:filterChanged= | Parent → Child | ={environment, server, user}= | User changed filters |
+| =csLineInvoker:taskExecuted=  | Child → Parent | ={taskId, output, duration}=  | Task completed       |
+| =csLineInvoker:taskFailed=    | Child → Parent | ={taskId, errorMessage}=      | Task failed          |
 
 ---
 
