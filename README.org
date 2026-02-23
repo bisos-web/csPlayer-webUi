@@ -20,8 +20,15 @@ a Pub/Sub event system for cross-service communication.
   - [[#architecture-approach][Architecture Approach]]
   - [[#key-technologies][Key Technologies]]
 - [[#configuration][Configuration]]
+  - [[#port-number-and-domain-assignments----bisosbanna][Port Number and Domain Assignments -- bisos.banna]]
+  - [[#development-port-numbers][Development Port Numbers]]
+  - [[#production-here-documents][Production .here documents]]
   - [[#service-urls-configuration][Service URLs Configuration]]
   - [[#invokerperformer-abstraction][Invoker/Performer Abstraction]]
+- [[#development-setup-and-usage][Development Setup and Usage]]
+  - [[#csplayerperf----django-cs-player-performer][csPlayerPerf -- Django CS Player Performer]]
+  - [[#cslineinvoker-----react-app-----command-line-constructor-and-executer][csLineInvoker --  React App --  Command-Line Constructor and Executer]]
+  - [[#csplayer----gatsby-react-app----cs-player-wrapper][csPlayer -- Gatsby-React App -- CS Player Wrapper]]
 - [[#architecture][Architecture]]
   - [[#system-design][System Design]]
   - [[#component-services][Component Services]]
@@ -78,11 +85,11 @@ Instead of merging multiple frontend projects, we take a *modular iframe orchest
 
 1. *Independent Services*: Each service (csLineInvoker, Airflow, Grafana) remains independent
    - Maintains its own codebase, dependencies, technology stack
-   - Runs on separate ports (9002, 8080, 3000)
+   - Runs on separate ports (25002, 8080, 3000)
    - Can be updated/deployed independently
 
 2. *Orchestration Host*: Gatsby-based dashboard (csLineInvoker-webUi) serves as the orchestrator
-   - Runs on port 8000
+   - Runs on port 25001
    - Embeds each service in its own iframe
    - Manages cross-service communication via PostMessage API
 
@@ -108,6 +115,55 @@ Instead of merging multiple frontend projects, we take a *modular iframe orchest
 :PROPERTIES:
 :CUSTOM_ID: configuration
 :END:
+
+** Port Number and Domain Assignments -- bisos.banna
+
+Port numbers and domains for this application are assigned through
+bisos.banna (BISOS Assigned Names  and Numbers Authority).
+
+  To obation the relevant port numbers:
+
+#+BEGIN_SRC bash
+pip install bisos.banna
+pipx install bisos.banna
+bannaInfo.cs -i bannaTcpPortsList | pyLiteralToBash.cs -i stdinToBlack
+#+END_SRC
+
+** Development Port Numbers
+
+Relevant assigned port numbers are:
+
+#+BEGIN_SRC python
+{
+    "csPlayerPerf_dev": TcpPortNuInfo(
+        portNu=23501,
+        portName="csPlayerPerf_dev",
+        portDescription="Backend API performer service (development)",
+    ),
+    "csPlayerUi_dev": TcpPortNuInfo(
+        portNu=25001,
+        portName="csPlayerUi_dev",
+        portDescription="Reveal Gatsby site wrapping csLineInvoker and others (development)",
+    ),
+    "csLineInvoker_dev": TcpPortNuInfo(
+        portNu=25002,
+        portName="csLineInvoker_dev",
+        portDescription="Line invoker service (development)",
+    ),
+}
+#+END_SRC
+
+
+** Production .here documents
+
+Relevant assigned .here domains as they apear in /etc/hosts are:
+
+#+BEGIN_SRC
+127.0.0.100  csPlayerPerf.here
+127.0.0.101  csLineInvoker.here
+127.0.0.102  csPlayerUi.here
+#+END_SRC
+
 
 ** Service URLs Configuration
 :PROPERTIES:
@@ -141,18 +197,18 @@ GATSBY_GRAFANA_URL=http://localhost:3000               # Metrics visualization
 
 **Development (.env.development):**
 #+BEGIN_SRC bash
-GATSBY_CSLINE_INV_URL=http://csLineInvoker.here
-GATSBY_CSPLAYER_PERF_URL=http://csLineInvokerPerf.here
+GATSBY_CSLINE_INV_URL=http://localhost:25002
+GATSBY_CSPLAYER_PERF_URL=http://localhost:23501
 GATSBY_AIRFLOW_URL=http://localhost:8080
 GATSBY_GRAFANA_URL=http://localhost:3000
 #+END_SRC
 
 **Production (.env.production):**
 #+BEGIN_SRC bash
-GATSBY_CSLINE_INV_URL=https://csplayer.example.com
-GATSBY_CSPLAYER_PERF_URL=https://csplayer-backend.example.com
-GATSBY_AIRFLOW_URL=https://airflow.example.com
-GATSBY_GRAFANA_URL=https://grafana.example.com
+GATSBY_CSLINE_INV_URL=http://csLineInvoker.here
+GATSBY_CSPLAYER_PERF_URL=http://csPlayerPerf.here
+GATSBY_AIRFLOW_URL=http://localhost:8080
+GATSBY_GRAFANA_URL=http://localhost:3000
 #+END_SRC
 
 *** Service Configuration Utility
@@ -227,6 +283,41 @@ The csLineInvoker ecosystem uses the Invoker/Performer abstraction pattern from 
     └───────────────┘              └──────────────────┘
 #+END_SRC
 
+* Development Setup and Usage
+
+** csPlayerPerf -- Django CS Player Performer
+
+#+BEGIN_SRC bash
+mkdir -p /bisos/git/bxRepos/cliGui
+git clone git@github:cliGui/webCliGui.git
+cd /bisos/git/bxRepos/cliGui/webCliGui/server
+# Set things up and enable the libraries
+python manage.py runserver 23001
+# visit http://localhost:23501/admin
+#+END_SRC
+
+** csLineInvoker --  React App --  Command-Line Constructor and Executer
+
+#+BEGIN_SRC bash
+cd /bisos/git/bxRepos/cliGui/webCliGui
+npm run watch
+# visit http://localhost:25002
+#+END_SRC
+
+** csPlayer -- Gatsby-React App -- CS Player Wrapper
+
+#+BEGIN_SRC bash
+mkdir -p /bisos/git/bxRepos/bisos-web
+git clone git@github:bisos-web/csPlayer-webUi
+cd /bisos/git/bxRepos/bisos-web/csPlayer-webUi
+# Set things up 
+npm run develop 
+# visit http://localhost:25001
+#+END_SRC
+
+From within the csPlayer app you should now be able to navigate to csLineInvoker and csPlayerPerf.
+        
+
 * Architecture
 :PROPERTIES:
 :CUSTOM_ID: architecture
@@ -240,7 +331,7 @@ The csLineInvoker ecosystem uses the Invoker/Performer abstraction pattern from 
 #+BEGIN_SRC
 ┌──────────────────────────────────────────────────────────────┐
 │                   BISOS Dashboard (Gatsby)                   │
-│                     localhost:8000                           │
+│                     localhost:25001                           │
 │                                                              │
 │  ┌────────────────────────────────────────────────────────┐ │
 │  │              Orchestration Layer                       │ │
@@ -267,7 +358,7 @@ The csLineInvoker ecosystem uses the Invoker/Performer abstraction pattern from 
         ┌──────▼──┐  ┌──────▼──┐  ┌──▼──────┐
         │csLineInvoker │  │ Airflow │  │ Grafana │
         │ iframe  │  │ iframe  │  │ iframe  │
-        │ :9002   │  │ :8080   │  │ :3000   │
+        │ :25002   │  │ :8080   │  │ :3000   │
         └─────────┘  └─────────┘  └─────────┘
 #+END_SRC
 
@@ -276,11 +367,11 @@ The csLineInvoker ecosystem uses the Invoker/Performer abstraction pattern from 
 :CUSTOM_ID: component-services
 :END:
 
-| Service  | Port | Role                           | Technology     |
-|----------+------+--------------------------------+----------------|
-| csLineInvoker | 9002 | Command execution & monitoring | React + Django |
-| Airflow  | 8080 | Workflow orchestration         | Python + Flask |
-| Grafana  | 3000 | Metrics & visualization        | Go + Node      |
+| Service       | Port | Role                           | Technology     |
+|---------------+------+--------------------------------+----------------|
+| csLineInvoker | 25002 | Command execution & monitoring | React + Django |
+| Airflow       | 8080 | Workflow orchestration         | Python + Flask |
+| Grafana       | 3000 | Metrics & visualization        | Go + Node      |
 
 ** Communication Model
 :PROPERTIES:
@@ -621,7 +712,7 @@ npm install
 npm run develop
 #+END_SRC
 
-Server starts on ~http://localhost:8000~
+Server starts on ~http://localhost:25001~
 
 *** Build for Production
 

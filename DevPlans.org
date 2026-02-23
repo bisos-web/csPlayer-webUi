@@ -1,0 +1,32 @@
+#+TITLE: csPlayerWeb Development Plans
+#+AUTHOR: BISOS Development Team
+#+DATE: February 22, 2026
+#+STARTUP: overview
+#+OPTIONS: toc:t H:3
+
+Development ralated notes and plans
+_
+* Table of Contents     :TOC:
+- [[#add-development-port-number-assignments-with-banna][Add Development Port Number Assignments With BANNA]]
+
+* Add Development Port Number Assignments With BANNA
+
+#+BEGIN_SRC python
+{
+    "csPlayerPerf_dev": TcpPortNuInfo(
+        portNu=23501,
+        portName="csPlayerPerf_dev",
+        portDescription="Backend API performer service (development)",
+    ),
+    "csPlayerUi_dev": TcpPortNuInfo(
+        portNu=25001,
+        portName="csPlayerUi_dev",
+        portDescription="Reveal Gatsby site wrapping csLineInvoker and others (development)",
+    ),
+    "csLineInvoker_dev": TcpPortNuInfo(
+        portNu=25002,
+        portName="csLineInvoker_dev",
+        portDescription="Line invoker service (development)",
+    ),
+}
+#+END_SRC
