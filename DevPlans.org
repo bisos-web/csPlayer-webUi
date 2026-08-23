@@ -7,7 +7,14 @@
 Development ralated notes and plans
 _
 * Table of Contents     :TOC:
+- [[#filepond][filepond]]
+  - [[#httpspqinanlfilepond][https://pqina.nl/filepond/]]
+  - [[#httpsgithubcomhvitisdjango-rest-filepond-react-js][https://github.com/hvitis/django-rest-filepond-react-js]]
 - [[#add-development-port-number-assignments-with-banna][Add Development Port Number Assignments With BANNA]]
+
+* filepond
+** https://pqina.nl/filepond/
+** https://github.com/hvitis/django-rest-filepond-react-js
 
 * Add Development Port Number Assignments With BANNA
 
