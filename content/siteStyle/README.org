@@ -1,0 +1,4 @@
+#+title: content/siteStyle/ --- The Header (Optional)
+
+Put a =logo.html= here (an HTML fragment) to replace the header's title block, as the Plone 3
+sites' =SiteStyle/logoText/logo.html= did.

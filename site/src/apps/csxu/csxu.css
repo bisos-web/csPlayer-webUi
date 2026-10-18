@@ -1,0 +1,8 @@
+/* Tailwind for the CSXU information islands: its theme and utilities only, without its base reset
+   (preflight), so the site's own page styles stay as they are. The utilities are not in a cascade
+   layer: a layered rule loses to any unlayered one (the site's `pre { background }` would beat
+   `.bg-gray-900`); unlayered, a utility class wins over the site's element rules by specificity. */
+@layer theme;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css";
+@source "./";

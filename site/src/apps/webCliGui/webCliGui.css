@@ -1,0 +1,4 @@
+/* webCliGui's own stylesheet (Tailwind v4, Bootstrap, rc-tree), plus where Tailwind finds its class names:
+   webCliGui's source is under node_modules (linked), which Tailwind's automatic detection skips. */
+@import "webcligui/src/index.css";
+@source "../../../node_modules/webcligui/src";

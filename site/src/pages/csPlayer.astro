@@ -1,0 +1,12 @@
+---
+// The csPlayer CSXU tab: an app node of content/tree, rendered as webCliGui, a React island. The tree
+// gives the tab and title; this page gives the app, in the site's layout and on the site's origin.
+import TreeLayout from "../layouts/TreeLayout.astro"
+import WebCliGui from "../apps/webCliGui/WebCliGui"
+import { nodeAt } from "../lib/contentTree.mjs"
+
+const node = nodeAt("/csPlayer/")
+---
+<TreeLayout node={node}>
+  <WebCliGui client:only="react" />
+</TreeLayout>

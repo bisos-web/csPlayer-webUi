@@ -1,0 +1,14 @@
+---
+// An app node of content/tree (/csxu/info/): the CsxuInfo island, following the csPlayer context
+// (the selected package and module), in the tree's layout.
+import TreeLayout from "../../layouts/TreeLayout.astro"
+import CsxuInfo from "../../apps/csxu/CsxuInfo"
+import { nodeAt } from "../../lib/contentTree.mjs"
+
+const node = nodeAt("/csxu/info/")
+---
+<TreeLayout node={node}>
+  <h1>{node.page.title}</h1>
+  {node.page.description && <p class="description">{node.page.description}</p>}
+  <CsxuInfo client:only="react" />
+</TreeLayout>

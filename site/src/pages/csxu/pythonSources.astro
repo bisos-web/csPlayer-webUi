@@ -1,0 +1,14 @@
+---
+// An app node of content/tree (/csxu/pythonSources/): the PythonSources island, following the csPlayer context
+// (the selected package and module), in the tree's layout.
+import TreeLayout from "../../layouts/TreeLayout.astro"
+import PythonSources from "../../apps/csxu/PythonSources"
+import { nodeAt } from "../../lib/contentTree.mjs"
+
+const node = nodeAt("/csxu/pythonSources/")
+---
+<TreeLayout node={node}>
+  <h1>{node.page.title}</h1>
+  {node.page.description && <p class="description">{node.page.description}</p>}
+  <PythonSources client:only="react" />
+</TreeLayout>

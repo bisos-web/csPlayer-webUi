@@ -1,0 +1,11 @@
+#+title: content/ --- What the Site Shows
+
+- =tree/= --- the content tree: the site's pages, one directory per node (see the site's "The Content
+  Tree" pages, or the README). =../astroProc.spcs -i contentTreeList tree= shows it.
+- =bin/= --- site-specific content scripts. Each executable here writes its part into =data/= as
+  JSON; =../astroProc.spcs -i contentBuild= (and =siteBuild=) runs every one of them, in name order, and
+  the first failure stops the build. The starter has none.
+- =data/= --- what the scripts wrote (per host, per build; not under git). Pages in
+  =../site/src/pages/= read it at build time (as platform.here's =site/src/lib/content.mjs= does).
+- =siteStyle/= --- optional =logo.html= for the header; without it the header shows =siteTitle= and
+  =siteTagline= from the tree's root.

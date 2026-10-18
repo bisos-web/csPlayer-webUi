@@ -1,0 +1,30 @@
+{
+  "name": "csplayer-web-ui",
+  "private": true,
+  "description": "csPlayer: BISOS command-service players (webCliGui as an Astro island) in a content-tree Astro site",
+  "type": "module",
+  "version": "2.0.0",
+  "author": "Mohsen Banan <https://github.com/mohsenBanan>",
+  "repository": { "type": "git", "url": "https://github.com/bisos-web/csPlayer-webUi" },
+  "scripts": {
+    "build": "astro build",
+    "dev": "astro dev",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/react": "7.0.1",
+    "@tailwindcss/vite": "4.3.3",
+    "astro": "7.3.8",
+    "bootstrap": "5.3.8",
+    "clsx": "2.1.1",
+    "immer": "11.1.21",
+    "rc-tree": "5.13.1",
+    "react": "19.3.1",
+    "react-bootstrap": "2.10.10",
+    "react-dom": "19.3.1",
+    "react-markdown": "10.1.0",
+    "tailwindcss": "4.3.3",
+    "webcligui": "file:/bxRepos/cliGui/webCliGui",
+    "zustand": "5.0.15"
+  }
+}

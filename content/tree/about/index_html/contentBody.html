@@ -1,0 +1,15 @@
+<p>This site is an Astro site built from a content tree (<code>content/tree/</code>), from
+<code>bisos-web/astro-starter-bystar</code>. Its <em>csPlayer CSXU</em> tab is an <code>app</code> node: the tree
+gives the tab, its title and its place; the page is <code>site/src/pages/csPlayer.astro</code>, which renders
+webCliGui's React root component as an island (<code>client:only="react"</code>).</p>
+<table>
+  <thead><tr><th></th><th>Gatsby csPlayer (<code>gatsby/</code>)</th><th>This site</th></tr></thead>
+  <tbody>
+    <tr><td>webCliGui</td><td>an iframe of <code>csLineInvoker.here</code></td><td>an island in the page</td></tr>
+    <tr><td>Origin</td><td>another site</td><td>this site (its <code>/api/</code> is this site's)</td></tr>
+    <tr><td>Talking to the page</td><td>postMessage through a message bus and iframe adapters</td><td>shared modules; the same postMessage, now to its own window</td></tr>
+    <tr><td>Source</td><td>built and served separately</td><td>built with the site, from <code>cliGui/webCliGui</code></td></tr>
+  </tbody>
+</table>
+<p>The backend (webCliGui's Django REST API) is not part of this step: the island renders, and its requests
+to <code>/api/</code> fail until the backend is brought in.</p>
