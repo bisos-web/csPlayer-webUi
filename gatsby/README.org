@@ -22,7 +22,7 @@ a Pub/Sub event system for cross-service communication.
 - [[#configuration][Configuration]]
   - [[#port-number-and-domain-assignments----bisosbanna][Port Number and Domain Assignments -- bisos.banna]]
   - [[#development-port-numbers][Development Port Numbers]]
-  - [[#production-here-fake-domains][Production .internal Fake Domains]]
+  - [[#production-internal-fake-domains][Production .internal Fake Domains]]
   - [[#service-urls-configuration][Service URLs Configuration]]
   - [[#invokerperformer-abstraction][Invoker/Performer Abstraction]]
 - [[#development-setup-and-usage][Development Setup and Usage]]
