@@ -19,8 +19,8 @@
  */
 
 export const getServiceUrls = () => ({
-  cslineInvoker: process.env.GATSBY_CSLINE_INV_URL || 'http://csLineInvoker.here',
-  csplayerPerformer: process.env.GATSBY_CSPLAYER_PERF_URL || 'http://csPlayerPerf.here',
+  cslineInvoker: process.env.GATSBY_CSLINE_INV_URL || 'http://csLineInvoker.internal',
+  csplayerPerformer: process.env.GATSBY_CSPLAYER_PERF_URL || 'http://csPlayerPerf.internal',
   airflow: process.env.GATSBY_AIRFLOW_URL || 'http://localhost:8080',
   grafana: process.env.GATSBY_GRAFANA_URL || 'http://localhost:3000',
 })

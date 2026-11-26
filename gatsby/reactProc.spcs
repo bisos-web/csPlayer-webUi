@@ -19,7 +19,7 @@ import sys
 reactProc_seedInfo.setup(
     examplesFuncsList=[lambda: examples_spcs(),],  # lambda is for forward reference
     reactFramework=reactProc_csu.ReactFramework.Gatsby,
-    webVirtualDomain="csPlayerUi.here",
+    webVirtualDomain="csPlayerUi.internal",
     dev_webPortNu=int(banna_csu.bannaTcpPortNuOf().pyCmnd(argsList=["csPlayerUi_dev"],).results)
 )
 

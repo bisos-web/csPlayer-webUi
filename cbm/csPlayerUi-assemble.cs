@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """ #+begin_org
-* ~[Summary]~ :: A =CmndSvc= for assembling csPlayerUi.here: the content, the Astro build, the .here dns entry and the nginx vhost.
+* ~[Summary]~ :: A =CmndSvc= for assembling csPlayerUi.internal: the content, the Astro build, the .internal dns entry and the nginx vhost.
 #+end_org """
 
 ####+BEGIN: b:py3:cs:file/dblockControls :classification "cs-mu"
@@ -53,7 +53,7 @@ csInfo['cmndParts'] = 'IcmCmndParts[common] IcmCmndParts[param]'
 This is the assemble step of csPlayerUi-cbs.pcs. The site's directory has cbm/ (this file and the
 other capability files), content/ and site/. siteBuild runs ./astroProc.spcs -i siteBuild (bisos.webCap's
 astroProc): the content tree's pageLcnt bodies (HeVeA) and files nodes, every executable in content/bin/,
-then npm ci and astro build into site/dist/. hereDns registers =csPlayerUi.here=
+then npm ci and astro build into site/dist/. hereDns registers =csPlayerUi.internal=
 (csPlayerUi-here-dns.pcs); webVirtDom installs and enables its nginx vhost (csPlayerUi-wvd.pcs), which
 serves site/dist/ as static files. A new site renames these files and their contents.
 ** Status: Starting point
@@ -180,8 +180,8 @@ class examples(cs.Cmnd):
         cmnd('siteBuild', comment=" # run content/bin/*, then npm ci + astro build in site/")
 
         cs.examples.menuChapter('=Activation Commands=')
-        cmnd('hereDns', comment=" # csPlayerUi.here in /etc/hosts")
-        cmnd('webVirtDom', comment=" # csPlayerUi.here nginx vhost -> site/dist/")
+        cmnd('hereDns', comment=" # csPlayerUi.internal in /etc/hosts")
+        cmnd('webVirtDom', comment=" # csPlayerUi.internal nginx vhost -> site/dist/")
 
         cs.examples.menuChapter('=Full Update=')
         cmnd('fullUpdate', comment=" # siteBuild + hereDns + webVirtDom")
@@ -288,7 +288,7 @@ class hereDns(cs.Cmnd):
             return failed(cmndOutcome)
 ####+END:
         if self.cmndDocStr(f""" #+begin_org
-** [[elisp:(org-cycle)][| *CmndDesc:* | ]]  Write csPlayerUi.here into /etc/hosts.
+** [[elisp:(org-cycle)][| *CmndDesc:* | ]]  Write csPlayerUi.internal into /etc/hosts.
         #+end_org """): return(cmndOutcome)
 
         self.captureRunStr(""" #+begin_org
@@ -327,7 +327,7 @@ class webVirtDom(cs.Cmnd):
             return failed(cmndOutcome)
 ####+END:
         if self.cmndDocStr(f""" #+begin_org
-** [[elisp:(org-cycle)][| *CmndDesc:* | ]]  Install and enable csPlayerUi.here's nginx vhost.
+** [[elisp:(org-cycle)][| *CmndDesc:* | ]]  Install and enable csPlayerUi.internal's nginx vhost.
         #+end_org """): return(cmndOutcome)
 
         self.captureRunStr(""" #+begin_org

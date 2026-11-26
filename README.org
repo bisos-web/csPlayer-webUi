@@ -5,10 +5,10 @@
 
 * Overview
 
-=http://csPlayerUi.here= brings the BISOS command-service players together in one site. Its first
+=http://csPlayerUi.internal= brings the BISOS command-service players together in one site. Its first
 player, the /csPlayer CSXU/ tab, is webCliGui (=cliGui/webCliGui=): a React application that builds,
 executes and monitors CSXU command lines, here as an *Astro island* --- rendered into the site's page,
-under its tabs, on its origin --- instead of an iframe of =csLineInvoker.here=.
+under its tabs, on its origin --- instead of an iframe of =csLineInvoker.internal=.
 
 The site is built from =bisos-web/astro-starter-bystar= (the =astro-site= activity): its pages come
 from =content/tree/=. The earlier Gatsby site, which framed webCliGui and Airflow and coordinated them
@@ -24,7 +24,7 @@ follow it; Airflow and Grafana are links. Not yet: the CSXU Graphviz page.
 #+begin_example
 csPlayer-webUi/
   README.org, LICENSE
-  astroProc.spcs     the site's process (bisos.webCap's astroProc seed); csPlayerUi.here, dev port 25001
+  astroProc.spcs     the site's process (bisos.webCap's astroProc seed); csPlayerUi.internal, dev port 25001
   cbm/               the capability: csPlayerUi-cbs.pcs, -assemble.cs, -wvd.pcs, -here-dns.pcs
   content/tree/      Home, csPlayer (an app node), About
   site/              the Astro site; webCliGui linked in as node_modules/webcligui
@@ -84,7 +84,7 @@ store.
 | CSXU / CSXU Info      | the package's =README.org= from GitHub (island)      |
 | CSXU / Python Sources | the module's =py3/bin/<module>= from GitHub (island) |
 | CSXU / pipx Info      | the package on PyPI (island)                         |
-| Grafana               | a =link= node: =http://grafana.here/= in a new tab   |
+| Grafana               | a =link= node: =http://grafana.internal/= in a new tab   |
 
 The CSXU islands' Tailwind is loaded without its base reset, and with its utilities outside any
 cascade layer: a layered rule loses to every unlayered one, so the site's =pre { background }= had

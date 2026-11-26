@@ -6,6 +6,6 @@
   JSON; =../astroProc.spcs -i contentBuild= (and =siteBuild=) runs every one of them, in name order, and
   the first failure stops the build. The starter has none.
 - =data/= --- what the scripts wrote (per host, per build; not under git). Pages in
-  =../site/src/pages/= read it at build time (as platform.here's =site/src/lib/content.mjs= does).
+  =../site/src/pages/= read it at build time (as platform.internal's =site/src/lib/content.mjs= does).
 - =siteStyle/= --- optional =logo.html= for the header; without it the header shows =siteTitle= and
   =siteTagline= from the tree's root.

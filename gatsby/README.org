@@ -22,7 +22,7 @@ a Pub/Sub event system for cross-service communication.
 - [[#configuration][Configuration]]
   - [[#port-number-and-domain-assignments----bisosbanna][Port Number and Domain Assignments -- bisos.banna]]
   - [[#development-port-numbers][Development Port Numbers]]
-  - [[#production-here-fake-domains][Production .here Fake Domains]]
+  - [[#production-here-fake-domains][Production .internal Fake Domains]]
   - [[#service-urls-configuration][Service URLs Configuration]]
   - [[#invokerperformer-abstraction][Invoker/Performer Abstraction]]
 - [[#development-setup-and-usage][Development Setup and Usage]]
@@ -154,14 +154,14 @@ Relevant assigned port numbers are:
 #+END_SRC
 
 
-** Production .here Fake Domains
+** Production .internal Fake Domains
 
-Relevant assigned .here domains as they apear in /etc/hosts are:
+Relevant assigned .internal domains as they apear in /etc/hosts are:
 
 #+BEGIN_SRC
-127.0.0.100  csPlayerPerf.here
-127.0.0.101  csLineInvoker.here
-127.0.0.102  csPlayerUi.here
+127.0.0.100  csPlayerPerf.internal
+127.0.0.101  csLineInvoker.internal
+127.0.0.102  csPlayerUi.internal
 #+END_SRC
 
 
@@ -187,8 +187,8 @@ Gatsby automatically loads environment-specific files:
 All service URL variables use the ~GATSBY_~ prefix (required by Gatsby to expose variables to the browser):
 
 #+BEGIN_SRC bash
-GATSBY_CSLINE_INV_URL=http://csLineInvoker.here        # Invoker: Command submission UI
-GATSBY_CSPLAYER_PERF_URL=http://csLineInvokerPerf.here      # Performer: Command execution engine
+GATSBY_CSLINE_INV_URL=http://csLineInvoker.internal        # Invoker: Command submission UI
+GATSBY_CSPLAYER_PERF_URL=http://csLineInvokerPerf.internal      # Performer: Command execution engine
 GATSBY_AIRFLOW_URL=http://localhost:8080               # Workflow orchestration
 GATSBY_GRAFANA_URL=http://localhost:3000               # Metrics visualization
 #+END_SRC
@@ -205,8 +205,8 @@ GATSBY_GRAFANA_URL=http://localhost:3000
 
 **Production (.env.production):**
 #+BEGIN_SRC bash
-GATSBY_CSLINE_INV_URL=http://csLineInvoker.here
-GATSBY_CSPLAYER_PERF_URL=http://csPlayerPerf.here
+GATSBY_CSLINE_INV_URL=http://csLineInvoker.internal
+GATSBY_CSPLAYER_PERF_URL=http://csPlayerPerf.internal
 GATSBY_AIRFLOW_URL=http://localhost:8080
 GATSBY_GRAFANA_URL=http://localhost:3000
 #+END_SRC

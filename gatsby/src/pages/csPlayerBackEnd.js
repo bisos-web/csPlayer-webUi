@@ -99,7 +99,7 @@ const CsPlayerBackEndPage = () => {
             <div className="mb-6">
               <h2 className="text-2xl font-bold text-gray-800 mb-4">Django Admin Portal</h2>
               <p className="text-gray-600 mb-4">
-                The Django admin interface is served at a different domain (csPlayerPerf.here) for security reasons. 
+                The Django admin interface is served at a different domain (csPlayerPerf.internal) for security reasons. 
                 Browser restrictions prevent direct embedding, so please use the button below to access it.
               </p>
             </div>
